@@ -1,0 +1,130 @@
+/* ========================================
+   ESTILOS GENERALES
+   ======================================== */
+
+/* Fondo del juego */
+body {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* ========================================
+   PANTALLA PRINCIPAL
+   ======================================== */
+
+#pantalla-inicio {
+    background: white;
+    padding: 40px;
+    border-radius: 20px;
+    text-align: center;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+}
+
+/* ========================================
+   TIPOGRAFÍA
+   ======================================== */
+
+h1 {
+    color: #667eea;
+    font-size: 48px;
+    margin: 0 0 20px 0;
+}
+
+h2 {
+    color: #333;
+    font-size: 24px;
+}
+
+p {
+    color: #666;
+    font-size: 18px;
+}
+
+/* ========================================
+   BOTONES
+   ======================================== */
+
+button {
+    background: #667eea;
+    color: white;
+    border: none;
+    padding: 15px 30px;
+    font-size: 18px;
+    border-radius: 10px;
+    margin: 10px;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+button:hover {
+    transform: scale(1.05);
+    background: #764ba2;
+}
+
+button:active {
+    transform: scale(0.95);
+}
+
+/* ========================================
+   INPUTS
+   ======================================== */
+
+input[type="text"] {
+    padding: 12px;
+    font-size: 16px;
+    border: 2px solid #667eea;
+    border-radius: 8px;
+    margin: 10px;
+    width: 200px;
+}
+
+input[type="text"]:focus {
+    outline: none;
+    border-color: #764ba2;
+    box-shadow: 0 0 10px rgba(102, 126, 234, 0.3);
+}
+
+/* ========================================
+   PANTALLA DE JUEGO
+   ======================================== */
+
+#pantalla-juego {
+    background: white;
+    padding: 40px;
+    border-radius: 20px;
+    text-align: center;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    max-width: 800px;
+}
+
+#matrices-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+    margin: 20px 0;
+}
+
+/* ========================================
+   UTILIDADES
+   ======================================== */
+
+.oculto {
+    display: none !important;
+}
+
+.texto-exito {
+    color: #28a745;
+    font-weight: bold;
+}
+
+.texto-error {
+    color: #dc3545;
+    font-weight: bold;
+}

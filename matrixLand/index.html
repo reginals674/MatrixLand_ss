@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MATRIXLAND</title>
+    <link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+    <div id="pantalla-inicio">
+        <h1>MATRIXLAND</h1>
+        <p>¡Aprende matrices jugando!</p>
+        
+       <div style="background: #f0f9ff; padding: 15px; border-radius: 10px; margin: 10px 0;">
+            <button id="btn-basico"> Nivel Básico</button>
+            <p style="margin: 5px 0; color: #666; font-size: 14px;">
+                Aprende: <strong>Suma y Resta</strong><br>
+                Matrices 2x2 con números del 1 al 5
+            </p>
+        </div>
+        
+        <!-- Nivel Intermedio -->
+        <div style="background: #f0fdf4; padding: 15px; border-radius: 10px; margin: 10px 0;">
+            <button id="btn-intermedio"> Nivel Intermedio</button>
+            <p style="margin: 5px 0; color: #666; font-size: 14px;">
+                Aprende: <strong>Multiplicación</strong><br>
+                Matrices 2x2 y 3x3 con números del 1 al 8
+            </p>
+        </div>
+        
+        <!-- Nivel Avanzado -->
+        <div style="background: #fef2f2; padding: 15px; border-radius: 10px; margin: 10px 0;">
+            <button id="btn-avanzado">Nivel Avanzado</button>
+            <p style="margin: 5px 0; color: #666; font-size: 14px;">
+                Aprende: <strong>Transpuesta y Determinante</strong><br>
+                Matrices 3x3 y 4x4 con números del 1 al 10
+            </p>
+        </div>
+    </div>
+
+   
+    <div id="pantalla-juego" style="display: none;">
+        <div id="nivel-actual" style="text-align: center; margin-bottom: 20px; padding: 10px; background: #f3f4f6; border-radius: 8px;">
+            <span style="font-weight: bold; color: #667eea;">Nivel: </span>
+            <span id="texto-nivel"></span>
+        </div>
+        
+        <div id="matrices-container"></div>
+        
+        <div style="margin: 20px 0;">
+            <label for="respuesta-usuario" style="display: block; margin-bottom: 10px; font-weight: bold;">
+                Tu respuesta:
+            </label>
+            <input type="text" 
+                   placeholder="Ejemplo: [[1,2],[3,4]] o un número" 
+                   id="respuesta-usuario">
+        </div>
+
+        <button id="btn-verificar">✓ Verificar</button>
+        <button id="btn-volver">← Volver al Inicio</button>
+        
+        <div id="mensaje-resultado"></div>
+        
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
