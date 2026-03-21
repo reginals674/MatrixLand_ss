@@ -1,8 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
-
-  
     // ALMACENAMIENTO LOCAL
-    
     const Storage = {
         KEYS: {
             RECORD: 'matrixland_record',
@@ -74,20 +71,22 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
     };
- 
+
+    
     // CARGAR ESTADÍSTICAS INICIALES
+   
 
     const stats = Storage.obtenerEstadisticas();
     const recordGuardado = Storage.obtenerRecord();
 
-    const globalRecord  = document.getElementById('global-record');
+    const globalRecord   = document.getElementById('global-record');
     const globalPartidas = document.getElementById('global-partidas');
     const globalAciertos = document.getElementById('global-aciertos');
-    const globalRacha   = document.getElementById('global-racha');
+    const globalRacha    = document.getElementById('global-racha');
 
-    if (globalRecord)  globalRecord.textContent  = recordGuardado;
+    if (globalRecord)   globalRecord.textContent   = recordGuardado;
     if (globalPartidas) globalPartidas.textContent = stats.partidasJugadas;
-    if (globalRacha)   globalRacha.textContent   = stats.mejorRacha;
+    if (globalRacha)    globalRacha.textContent     = stats.mejorRacha;
     if (globalAciertos) {
         const precision = stats.totalIntentos > 0
             ? Math.round((stats.totalAciertos / stats.totalIntentos) * 100)
@@ -95,8 +94,9 @@ document.addEventListener('DOMContentLoaded', () => {
         globalAciertos.textContent = precision + '%';
     }
 
-  
+    
     // REFERENCIAS DOM
+   
 
     const pantallaInicio = document.getElementById('pantalla-inicio');
     const pantallaJuego  = document.getElementById('pantalla-juego');
@@ -111,29 +111,28 @@ document.addEventListener('DOMContentLoaded', () => {
     const inputRespuesta = document.getElementById('respuesta-usuario');
     const mensajeDiv     = document.getElementById('mensaje-resultado');
 
-   
+    
     // ESTADO DEL JUEGO
 
-
     let matrizA = [];
-    let matrizB = null;         
+    let matrizB = null;
     let respuestaCorrecta = [];
     let nivelActual = 'basico';
 
-    let puntos        = 0;
-    let rachaActual   = 0;
-    let mejorRacha    = 0;
+    let puntos         = 0;
+    let rachaActual    = 0;
+    let mejorRacha     = 0;
     let recordPersonal = recordGuardado;
-    let totalAciertos = 0;
-    let totalIntentos = 0;
-    let vidasActuales = 3;
+    let totalAciertos  = 0;
+    let totalIntentos  = 0;
+    let vidasActuales  = 3;
     const VIDAS_MAXIMAS = 3;
 
-   
     let timeoutSiguienteDesafio = null;
 
     
     // EVENTOS
+   
 
     if (btnBasico)      btnBasico.addEventListener('click',      () => irAJuego('basico'));
     if (btnIntermedio)  btnIntermedio.addEventListener('click',  () => irAJuego('intermedio'));
@@ -158,7 +157,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     
     // OPERACIONES CON MATRICES
-
+ 
     function generarMatriz(filas, columnas, max = 10) {
         return Array.from({ length: filas }, () =>
             Array.from({ length: columnas }, () => Math.floor(Math.random() * max) + 1)
@@ -187,10 +186,6 @@ document.addEventListener('DOMContentLoaded', () => {
         return m[0].map((_, j) => m.map(fila => fila[j]));
     }
 
-    function calcularDeterminante2x2(m) {
-        return m[0][0] * m[1][1] - m[0][1] * m[1][0];
-    }
-
     function calcularDeterminante3x3(m) {
         const [a, b, c] = m[0];
         const [d, e, f] = m[1];
@@ -208,9 +203,9 @@ document.addEventListener('DOMContentLoaded', () => {
         return det;
     }
 
-   
-    // PUNTOS Y ESTADÍSTICAS EN PANTALLA
     
+    // PUNTOS Y ESTADÍSTICAS EN PANTALLA
+ 
 
     function calcularPuntos(nivel, rachaBonus) {
         const base = { basico: 10, intermedio: 20, avanzado: 30 }[nivel] || 10;
@@ -227,8 +222,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (puntosDisplay) {
             puntosDisplay.textContent = puntos;
-            puntosDisplay.style.transform = 'scale(1.2)';
-            setTimeout(() => puntosDisplay.style.transform = 'scale(1)', 200);
+            // ANIMACIÓN: pulso al cambiar puntos
+            puntosDisplay.classList.remove('puntos-ganados');
+            void puntosDisplay.offsetWidth; // reflow para reiniciar animación
+            puntosDisplay.classList.add('puntos-ganados');
         }
         if (rachaDisplay) {
             rachaDisplay.textContent = rachaActual;
@@ -251,6 +248,7 @@ document.addEventListener('DOMContentLoaded', () => {
             position:fixed;top:50%;left:50%;
             transform:translate(-50%,-50%);
             font-size:48px;font-weight:bold;color:#f59e0b;
+            font-family:'Orbitron',sans-serif;
             text-shadow:2px 2px 4px rgba(0,0,0,.3);
             animation:puntosAnimation 1s ease-out;
             pointer-events:none;z-index:1000;
@@ -272,11 +270,12 @@ document.addEventListener('DOMContentLoaded', () => {
         el.style.cssText = `
             position:fixed;top:20%;left:50%;
             transform:translate(-50%,-50%);
+            font-family:'Orbitron',sans-serif;
             font-size:36px;font-weight:bold;color:#f59e0b;
             text-shadow:3px 3px 6px rgba(0,0,0,.5);
             animation:recordAnimation 2s ease-out;
             pointer-events:none;z-index:1000;
-            background:rgba(255,255,255,.9);
+            background:rgba(255,255,255,.95);
             padding:20px 40px;border-radius:15px;
             border:4px solid #f59e0b;
         `;
@@ -303,27 +302,39 @@ document.addEventListener('DOMContentLoaded', () => {
     function reiniciarPuntos() {
         puntos = 0;
         rachaActual = 0;
-        mejorRacha  = 0;   
+        mejorRacha  = 0;
         totalAciertos = 0;
         totalIntentos = 0;
         actualizarDisplayPuntos();
     }
 
+   
     // SISTEMA DE VIDAS
-
+   
     function actualizarDisplayVidas() {
         const vidasDisplay = document.getElementById('vidas-display');
         if (!vidasDisplay) return;
         vidasDisplay.textContent =
             '❤️'.repeat(vidasActuales) + '🖤'.repeat(VIDAS_MAXIMAS - vidasActuales);
+       
+        vidasDisplay.classList.remove('vida-perdida');
+        void vidasDisplay.offsetWidth;
         vidasDisplay.classList.add('vida-perdida');
-        setTimeout(() => vidasDisplay.classList.remove('vida-perdida'), 500);
     }
 
     function perderVida() {
         if (vidasActuales > 0) {
             vidasActuales--;
             actualizarDisplayVidas();
+
+           
+            const cardVidas = document.querySelector('.stat-vidas');
+            if (cardVidas) {
+                cardVidas.classList.remove('danger-flash');
+                void cardVidas.offsetWidth;
+                cardVidas.classList.add('danger-flash');
+            }
+
             if (vidasActuales === 0) setTimeout(mostrarGameOver, 1000);
         }
     }
@@ -333,7 +344,7 @@ document.addEventListener('DOMContentLoaded', () => {
         actualizarDisplayVidas();
     }
 
-   
+    
     // GAME OVER
     
 
@@ -352,7 +363,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function reiniciarJuego() {
-       
         if (timeoutSiguienteDesafio) {
             clearTimeout(timeoutSiguienteDesafio);
             timeoutSiguienteDesafio = null;
@@ -365,47 +375,40 @@ document.addEventListener('DOMContentLoaded', () => {
         if (mensajeDiv)     mensajeDiv.innerHTML = '';
     }
 
-   
-    // RENDERIZADO DE MATRICES
-   
-    function htmlMatriz(matriz) {
+    
+    // RENDERIZADO DE MATRICES — con stagger animado
+  
+
+    function htmlMatriz(matriz, delayOffset = 0) {
+        let cellIndex = 0;
         return `<div style="display:inline-block;margin:10px;vertical-align:middle;">` +
             matriz.map(fila =>
                 `<div style="display:flex;">` +
-                fila.map(val =>
-                    `<div style="
-                        width:50px;height:50px;
-                        background:linear-gradient(135deg,#667eea,#764ba2);
-                        color:white;display:flex;
-                        align-items:center;justify-content:center;
-                        margin:5px;border-radius:8px;
-                        font-weight:bold;font-size:20px;
-                        box-shadow:0 4px 6px rgba(0,0,0,.2);
-                    ">${val}</div>`
-                ).join('') +
+                fila.map(val => {
+                    const delay = (delayOffset + cellIndex) * 50;
+                    cellIndex++;
+                    return `<div class="matrix-cell" style="animation-delay:${delay}ms;">${val}</div>`;
+                }).join('') +
                 `</div>`
             ).join('') +
         `</div>`;
     }
 
- 
     function mostrarDesafio(pregunta, simbolo) {
         const container = document.getElementById('matrices-container');
 
         let html = `<h3 style="margin-bottom:20px;color:#333;">${pregunta}</h3>`;
-
-        
         html += `<div style="display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:10px;">`;
-        html += htmlMatriz(matrizA);
+
+        const celdas = matrizA.length * matrizA[0].length;
+        html += htmlMatriz(matrizA, 0);
 
         if (matrizB !== null) {
-            
             html += `<div style="font-size:40px;font-weight:bold;color:#667eea;">${simbolo}</div>`;
-            html += htmlMatriz(matrizB);
+            html += htmlMatriz(matrizB, celdas);
             html += `<div style="font-size:40px;font-weight:bold;color:#667eea;">=</div>`;
             html += `<div style="font-size:40px;font-weight:bold;color:#764ba2;">?</div>`;
         } else {
-            
             const esTrans  = simbolo === 'T';
             const color    = esTrans ? '#1e40af' : '#991b1b';
             const bgColor  = esTrans ? '#f0f9ff' : '#fef2f2';
@@ -419,10 +422,11 @@ document.addEventListener('DOMContentLoaded', () => {
         container.innerHTML = html;
     }
 
+   
     // GENERACIÓN DE DESAFÍOS
-  
+    
+
     function generarDesafio(nivel) {
-        
         matrizB = null;
 
         let operacion, tamano, maxNumero, pregunta, simbolo;
@@ -465,24 +469,24 @@ document.addEventListener('DOMContentLoaded', () => {
                 respuestaCorrecta = transponerMatriz(matrizA);
                 pregunta = ` Calcula la TRANSPUESTA de esta matriz ${tamano}×${tamano}:`;
                 simbolo  = 'T';
-               
             } else {
                 respuestaCorrecta = tamano === 3
                     ? calcularDeterminante3x3(matrizA)
                     : calcularDeterminante4x4(matrizA);
                 pregunta = ` Calcula el DETERMINANTE de esta matriz ${tamano}×${tamano}:`;
                 simbolo  = 'det';
-            }   
+            }
         }
 
         mostrarDesafio(pregunta, simbolo);
-        console.log('Desafío:', operacion || nivel, `(${tamano}×${tamano}) →`, respuestaCorrecta);
+        console.log('Desafío:', operacion || nivel, `(${tamano}x${tamano}) →`, respuestaCorrecta);
     }
 
-    // NAVEGACIÓN
    
+    // NAVEGACIÓN
+    
+
     function irAJuego(nivel) {
-        
         if (timeoutSiguienteDesafio) {
             clearTimeout(timeoutSiguienteDesafio);
             timeoutSiguienteDesafio = null;
@@ -495,12 +499,17 @@ document.addEventListener('DOMContentLoaded', () => {
         pantallaInicio.style.display = 'none';
         pantallaJuego.style.display  = 'block';
 
+       
+        pantallaJuego.classList.remove('screen-enter');
+        void pantallaJuego.offsetWidth;
+        pantallaJuego.classList.add('screen-enter');
+
         const textoNivel = document.getElementById('texto-nivel');
         if (textoNivel) {
             const config = {
-                basico:     { texto: 'Básico — Suma y Resta',                color: '#3b82f6' },
-                intermedio: { texto: 'Intermedio — Multiplicación',           color: '#10b981' },
-                avanzado:   { texto: 'Avanzado — Transpuesta y Determinante', color: '#ef4444' }
+                basico:     { texto: ' Básico — Suma y Resta',                color: '#b6cbf7' },
+                intermedio: { texto: ' Intermedio — Multiplicación',           color: '#fbfd88' },
+                avanzado:   { texto: 'Avanzado — Transpuesta y Determinante', color: '#e9b9b9' }
             };
             textoNivel.textContent = config[nivel].texto;
             textoNivel.style.color  = config[nivel].color;
@@ -512,7 +521,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function volverInicio() {
-        
         if (timeoutSiguienteDesafio) {
             clearTimeout(timeoutSiguienteDesafio);
             timeoutSiguienteDesafio = null;
@@ -520,24 +528,30 @@ document.addEventListener('DOMContentLoaded', () => {
 
         pantallaInicio.style.display = 'block';
         pantallaJuego.style.display  = 'none';
+
+       
+        pantallaInicio.classList.remove('screen-enter');
+        void pantallaInicio.offsetWidth;
+        pantallaInicio.classList.add('screen-enter');
+
         reiniciarPuntos();
-        reiniciarVidas(); 
+        reiniciarVidas();
 
         if (mensajeDiv)     mensajeDiv.innerHTML = '';
         if (inputRespuesta) inputRespuesta.value  = '';
     }
 
-   
-    // VERIFICACIÓN DE RESPUESTAS
     
+    // VERIFICACIÓN DE RESPUESTAS
+  
+
     function verificarRespuesta() {
-        
         if (timeoutSiguienteDesafio) return;
 
         const respuestaUsuario = inputRespuesta ? inputRespuesta.value.trim() : '';
 
         if (!respuestaUsuario) {
-            mensajeDiv.innerHTML = '<p style="color:orange;font-size:18px;margin-top:20px;">⚠️ Por favor, ingresa una respuesta</p>';
+            mensajeDiv.innerHTML = '<p style="color:orange;font-size:18px;margin-top:20px;"> Por favor, ingresa una respuesta</p>';
             return;
         }
 
@@ -545,22 +559,26 @@ document.addEventListener('DOMContentLoaded', () => {
         let esCorrecta = false;
 
         if (typeof respuestaCorrecta === 'number') {
-            
             const numUsuario = parseFloat(respuestaUsuario);
             esCorrecta = !isNaN(numUsuario) && numUsuario === respuestaCorrecta;
             procesarResultado(esCorrecta, `El determinante correcto es <strong>${respuestaCorrecta}</strong>`);
         } else {
-            
             try {
                 const matrizUsuario = JSON.parse(respuestaUsuario);
-               
                 const normalizar = m => m.map(f => f.map(Number));
                 esCorrecta = JSON.stringify(normalizar(matrizUsuario)) === JSON.stringify(normalizar(respuestaCorrecta));
                 procesarResultado(esCorrecta, '¡Excelente! La matriz es correcta.');
             } catch {
+                // ANIMACIÓN: shake en el input cuando el formato es incorrecto
+                if (inputRespuesta) {
+                    inputRespuesta.classList.remove('input-shake');
+                    void inputRespuesta.offsetWidth;
+                    inputRespuesta.classList.add('input-shake');
+                    setTimeout(() => inputRespuesta.classList.remove('input-shake'), 500);
+                }
                 mensajeDiv.innerHTML = `
                     <div style="background:#fef3c7;padding:20px;border-radius:10px;margin-top:20px;border:3px solid #f59e0b;">
-                        <p style="color:#92400e;font-size:20px;font-weight:bold;margin:0;">⚠️ Formato incorrecto</p>
+                        <p style="color:#92400e;font-size:20px;font-weight:bold;margin:0;"> Formato incorrecto</p>
                         <p style="color:#b45309;font-size:16px;margin:10px 0 0;">
                             Usa el formato: <code style="background:white;padding:2px 8px;border-radius:3px;">[[1,2],[3,4]]</code>
                         </p>
@@ -583,19 +601,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
             let mensajeRacha = '';
             if (rachaActual >= 5) mensajeRacha = '<br> ¡RACHA ÉPICA!';
-            else if (rachaActual >= 3) mensajeRacha = '<br> ¡Racha en llamas!';
+            else if (rachaActual >= 3) mensajeRacha = '<br>¡Racha en llamas!';
 
             mensajeDiv.innerHTML = `
                 <div style="background:#d1fae5;padding:20px;border-radius:10px;margin-top:20px;border:3px solid #10b981;">
-                    <p style="color:#065f46;font-size:28px;font-weight:bold;margin:0;"> ¡CORRECTO!</p>
+                    <p style="color:#065f46;font-size:28px;font-weight:bold;margin:0;">¡CORRECTO!</p>
                     <p style="color:#047857;font-size:18px;margin:10px 0 0;">
                         ${mensajeExtra}<br>+${puntosGanados} puntos${mensajeRacha}
                     </p>
-                    <p style="color:#059669;font-size:14px;margin:10px 0 0;font-style:italic;"> Generando nuevo desafío...</p>
+                    <p style="color:#059669;font-size:14px;margin:10px 0 0;font-style:italic;">Generando nuevo desafío...</p>
                 </div>
             `;
 
-            
             timeoutSiguienteDesafio = setTimeout(() => {
                 timeoutSiguienteDesafio = null;
                 generarDesafio(nivelActual);
@@ -622,7 +639,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>
             `;
 
-          
             if (vidasActuales > 0) {
                 timeoutSiguienteDesafio = setTimeout(() => {
                     timeoutSiguienteDesafio = null;
@@ -633,6 +649,5 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
     }
-
 
 });
