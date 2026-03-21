@@ -622,7 +622,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>
             `;
 
-            // FIX: solo avanzar al siguiente desafío si aún quedan vidas
+          
             if (vidasActuales > 0) {
                 timeoutSiguienteDesafio = setTimeout(() => {
                     timeoutSiguienteDesafio = null;
