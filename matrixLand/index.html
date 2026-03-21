@@ -3,65 +3,144 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MATRIXLAND</title>
-    <link rel="stylesheet" href="style.css"/>
+    <title>MATRIXLAND - Juego Educativo de Matrices</title>
+    
+ 
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    
+    
     <div id="pantalla-inicio">
-        <h1>MATRIXLAND</h1>
-        <p>¡Aprende matrices jugando!</p>
+        <h1> MATRIXLAND</h1>
+        <p class="subtitulo">¡Aprende matrices de forma progresiva!</p>
         
-       <div style="background: #f0f9ff; padding: 15px; border-radius: 10px; margin: 10px 0;">
-            <button id="btn-basico"> Nivel Básico</button>
-            <p style="margin: 5px 0; color: #666; font-size: 14px;">
-                Aprende: <strong>Suma y Resta</strong><br>
+        <div class="nivel-card nivel-basico">
+            <button id="btn-basico" class="btn-nivel">Nivel Básico</button>
+            <p class="nivel-descripcion">
+                 Aprende: <strong>Suma y Resta</strong><br>
                 Matrices 2x2 con números del 1 al 5
             </p>
         </div>
         
-        <!-- Nivel Intermedio -->
-        <div style="background: #f0fdf4; padding: 15px; border-radius: 10px; margin: 10px 0;">
-            <button id="btn-intermedio"> Nivel Intermedio</button>
-            <p style="margin: 5px 0; color: #666; font-size: 14px;">
+        <div class="nivel-card nivel-intermedio">
+            <button id="btn-intermedio" class="btn-nivel"> Nivel Intermedio</button>
+            <p class="nivel-descripcion">
                 Aprende: <strong>Multiplicación</strong><br>
                 Matrices 2x2 y 3x3 con números del 1 al 8
             </p>
         </div>
         
-        <!-- Nivel Avanzado -->
-        <div style="background: #fef2f2; padding: 15px; border-radius: 10px; margin: 10px 0;">
-            <button id="btn-avanzado">Nivel Avanzado</button>
-            <p style="margin: 5px 0; color: #666; font-size: 14px;">
+        <div class="nivel-card nivel-avanzado">
+            <button id="btn-avanzado" class="btn-nivel"> Nivel Avanzado</button>
+            <p class="nivel-descripcion">
                 Aprende: <strong>Transpuesta y Determinante</strong><br>
                 Matrices 3x3 y 4x4 con números del 1 al 10
             </p>
         </div>
+    
     </div>
 
-   
+    
     <div id="pantalla-juego" style="display: none;">
-        <div id="nivel-actual" style="text-align: center; margin-bottom: 20px; padding: 10px; background: #f3f4f6; border-radius: 8px;">
-            <span style="font-weight: bold; color: #667eea;">Nivel: </span>
-            <span id="texto-nivel"></span>
+        
+        
+        <div class="estadisticas-panel">
+            
+            
+            <div class="stat-card stat-nivel">
+                <div class="stat-label">NIVEL</div>
+                <div id="texto-nivel" class="stat-value"> Básico</div>
+            </div>
+
+            <div class="stat-card stat-vidas">
+                <div class="stat-label">VIDAS</div>
+                <div id="vidas-display" class="stat-value">❤️❤️❤️</div>
+            </div>
+            
+            
+            <div class="stat-card stat-puntos">
+                <div class="stat-label">PUNTOS</div>
+                <div id="puntos-display" class="stat-value">0</div>
+            </div>
+            
+            
+            <div class="stat-card stat-racha">
+                <div class="stat-label">RACHA</div>
+                <div id="racha-display" class="stat-value">0</div>
+            </div>
+            
+            
+            <div class="stat-card stat-record">
+                <div class="stat-label">RÉCORD</div>
+                <div id="record-display" class="stat-value">0</div>
+            </div>
         </div>
+        
         
         <div id="matrices-container"></div>
         
-        <div style="margin: 20px 0;">
-            <label for="respuesta-usuario" style="display: block; margin-bottom: 10px; font-weight: bold;">
+        
+        <div class="respuesta-container">
+            <label for="respuesta-usuario" class="respuesta-label">
                 Tu respuesta:
             </label>
-            <input type="text" 
-                   placeholder="Ejemplo: [[1,2],[3,4]] o un número" 
-                   id="respuesta-usuario">
+            <input 
+                type="text" 
+                id="respuesta-usuario"
+                class="respuesta-input"
+                placeholder="Ejemplo: [[1,2],[3,4]] o un número" 
+                autocomplete="off"
+            >
         </div>
-
-        <button id="btn-verificar">✓ Verificar</button>
-        <button id="btn-volver">← Volver al Inicio</button>
         
+        
+        <div class="botones-accion">
+            <button id="btn-verificar" class="btn-principal">
+                 Verificar Respuesta
+            </button>
+            <button id="btn-volver" class="btn-secundario">
+                ← Volver al Inicio
+            </button>
+        </div>
+        
+       
         <div id="mensaje-resultado"></div>
-        
     </div>
+
+    <div id="modal-gameover" class="modal" style="display: none;">
+        <div class="modal-content">
+            <h2 class="modal-titulo">GAME OVER </h2>
+            <p class="modal-mensaje">¡Te quedaste sin vidas!</p>
+            
+            <div class="modal-estadisticas">
+                <div class="modal-stat">
+                    <span class="modal-stat-label">Puntos finales:</span>
+                    <span id="modal-puntos-finales" class="modal-stat-value">0</span>
+                </div>
+                <div class="modal-stat">
+                    <span class="modal-stat-label">Aciertos:</span>
+                    <span id="modal-aciertos" class="modal-stat-value">0/0</span>
+                </div>
+                <div class="modal-stat">
+                    <span class="modal-stat-label">Mejor racha:</span>
+                    <span id="modal-mejor-racha" class="modal-stat-value">0</span>
+                </div>
+            </div>
+            
+            <div class="modal-botones">
+                <button id="btn-reintentar" class="btn-modal btn-reintentar">
+                    Reintentar
+                </button>
+                <button id="btn-menu" class="btn-modal btn-menu">
+                    Menú Principal
+                </button>
+            </div>
+        </div>
+    </div>
+
+
+   
     <script src="script.js"></script>
 </body>
 </html>

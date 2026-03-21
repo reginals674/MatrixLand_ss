@@ -1,508 +1,638 @@
 document.addEventListener('DOMContentLoaded', () => {
+
+  
+    // ALMACENAMIENTO LOCAL
     
+    const Storage = {
+        KEYS: {
+            RECORD: 'matrixland_record',
+            ESTADISTICAS: 'matrixland_stats',
+            MEJORES_PUNTUACIONES: 'matrixland_top_scores',
+            PREFERENCIAS: 'matrixland_preferences'
+        },
+
+        guardarRecord(puntos) {
+            const recordActual = this.obtenerRecord();
+            if (puntos > recordActual) {
+                localStorage.setItem(this.KEYS.RECORD, puntos.toString());
+                return true;
+            }
+            return false;
+        },
+
+        obtenerRecord() {
+            const record = localStorage.getItem(this.KEYS.RECORD);
+            return record ? parseInt(record) : 0;
+        },
+
+        guardarEstadisticas(stats) {
+            localStorage.setItem(this.KEYS.ESTADISTICAS, JSON.stringify(stats));
+        },
+
+        obtenerEstadisticas() {
+            const stats = localStorage.getItem(this.KEYS.ESTADISTICAS);
+            if (stats) return JSON.parse(stats);
+            return {
+                partidasJugadas: 0,
+                totalAciertos: 0,
+                totalIntentos: 0,
+                mejorRacha: 0,
+                tiempoTotal: 0,
+                nivelMasJugado: 'basico'
+            };
+        },
+
+        actualizarEstadisticas(datosPartida) {
+            const stats = this.obtenerEstadisticas();
+            stats.partidasJugadas++;
+            stats.totalAciertos += datosPartida.aciertos;
+            stats.totalIntentos += datosPartida.intentos;
+            if (datosPartida.mejorRacha > stats.mejorRacha) {
+                stats.mejorRacha = datosPartida.mejorRacha;
+            }
+            this.guardarEstadisticas(stats);
+        },
+
+        guardarPuntuacion(puntos, nivel) {
+            let topScores = this.obtenerTopPuntuaciones();
+            topScores.push({ puntos, nivel, fecha: new Date().toISOString(), timestamp: Date.now() });
+            topScores.sort((a, b) => b.puntos - a.puntos);
+            topScores = topScores.slice(0, 10);
+            localStorage.setItem(this.KEYS.MEJORES_PUNTUACIONES, JSON.stringify(topScores));
+        },
+
+        obtenerTopPuntuaciones() {
+            const scores = localStorage.getItem(this.KEYS.MEJORES_PUNTUACIONES);
+            return scores ? JSON.parse(scores) : [];
+        },
+
+        borrarTodo() {
+            if (confirm('¿Estás seguro de borrar todos tus datos? Esta acción no se puede deshacer.')) {
+                Object.values(this.KEYS).forEach(k => localStorage.removeItem(k));
+                alert('Datos borrados exitosamente');
+                location.reload();
+            }
+        }
+    };
+ 
+    // CARGAR ESTADÍSTICAS INICIALES
+
+    const stats = Storage.obtenerEstadisticas();
+    const recordGuardado = Storage.obtenerRecord();
+
+    const globalRecord  = document.getElementById('global-record');
+    const globalPartidas = document.getElementById('global-partidas');
+    const globalAciertos = document.getElementById('global-aciertos');
+    const globalRacha   = document.getElementById('global-racha');
+
+    if (globalRecord)  globalRecord.textContent  = recordGuardado;
+    if (globalPartidas) globalPartidas.textContent = stats.partidasJugadas;
+    if (globalRacha)   globalRacha.textContent   = stats.mejorRacha;
+    if (globalAciertos) {
+        const precision = stats.totalIntentos > 0
+            ? Math.round((stats.totalAciertos / stats.totalIntentos) * 100)
+            : 0;
+        globalAciertos.textContent = precision + '%';
+    }
+
+  
+    // REFERENCIAS DOM
+
     const pantallaInicio = document.getElementById('pantalla-inicio');
-    const pantallaJuego = document.getElementById('pantalla-juego');
-    const btnBasico = document.getElementById('btn-basico');
-    const btnIntermedio = document.getElementById('btn-intermedio');
-    const btnAvanzado = document.getElementById('btn-avanzado');
-    const btnVerificar = document.getElementById('btn-verificar');
-    const btnVolver = document.getElementById('btn-volver');
+    const pantallaJuego  = document.getElementById('pantalla-juego');
+    const btnBasico      = document.getElementById('btn-basico');
+    const btnIntermedio  = document.getElementById('btn-intermedio');
+    const btnAvanzado    = document.getElementById('btn-avanzado');
+    const btnVerificar   = document.getElementById('btn-verificar');
+    const btnVolver      = document.getElementById('btn-volver');
+    const btnReintentar  = document.getElementById('btn-reintentar');
+    const btnMenu        = document.getElementById('btn-menu');
+    const btnBorrarDatos = document.getElementById('btn-borrar-datos');
+    const inputRespuesta = document.getElementById('respuesta-usuario');
+    const mensajeDiv     = document.getElementById('mensaje-resultado');
+
+   
+    // ESTADO DEL JUEGO
+
 
     let matrizA = [];
-    let matrizB = [];
+    let matrizB = null;         
     let respuestaCorrecta = [];
-    let nivelActual = 'basico'; 
-    
-   if (btnBasico) {
-        btnBasico.addEventListener('click', function() {
-            irAJuego('basico');  
-        });
-    }
+    let nivelActual = 'basico';
 
-    if (btnIntermedio) {
-        btnIntermedio.addEventListener('click', function() {
-            irAJuego('intermedio');  
-        });
-    }
+    let puntos        = 0;
+    let rachaActual   = 0;
+    let mejorRacha    = 0;
+    let recordPersonal = recordGuardado;
+    let totalAciertos = 0;
+    let totalIntentos = 0;
+    let vidasActuales = 3;
+    const VIDAS_MAXIMAS = 3;
 
-    if (btnAvanzado) {
-        btnAvanzado.addEventListener('click', function() {
-            irAJuego('avanzado'); 
-        });
-    }
-    
-    
-    if (btnVerificar) {
-        btnVerificar.addEventListener('click', verificarRespuesta);
-    }
-    
-    if (btnVolver) {
-        btnVolver.addEventListener('click', volverInicio);
-    }
-
-    
-   function generarMatriz(filas, columnas, max = 10) {
-        const matriz = [];
-        
-        for (let i = 0; i < filas; i++) {
-            const fila = [];
-            
-            for (let j = 0; j < columnas; j++) {
-                const numeroAleatorio = Math.floor(Math.random() * max) + 1;
-                fila.push(numeroAleatorio);
-            }
-            
-            matriz.push(fila);
-        }
-        
-        return matriz;
-    }
-
-    // Operaciones con matrices
-    function sumarMatrices(matrizA, matrizB) {
-        const resultado = [];
-        
-        for (let i = 0; i < matrizA.length; i++) {
-            const fila = [];
-            
-            for (let j = 0; j < matrizA[i].length; j++) {
-                const suma = matrizA[i][j] + matrizB[i][j];
-                fila.push(suma);
-            }
-            
-            resultado.push(fila);
-        }
-        
-        return resultado;
-    }
-
-    function restarMatrices(matrizA, matrizB) {
-        const resultado = [];
-        
-        for (let i = 0; i < matrizA.length; i++) {
-            const fila = [];
-            
-            for (let j = 0; j < matrizA[i].length; j++) {
-                const resta = matrizA[i][j] - matrizB[i][j];
-                fila.push(resta);
-            }
-            
-            resultado.push(fila);
-        }
-        
-        return resultado;
-    }
-
-
-    function multiplicarMatrices(matrizA, matrizB) {
-        const resultado = [];
-        const filasA = matrizA.length;
-        const columnasA = matrizA[0].length;
-        const columnasB = matrizB[0].length;
-        
-        
-        for (let i = 0; i < filasA; i++) {
-            resultado[i] = [];
-            for (let j = 0; j < columnasB; j++) {
-                resultado[i][j] = 0;
-            }
-        }
-        
-        // Multiplicar
-        for (let i = 0; i < filasA; i++) {
-            for (let j = 0; j < columnasB; j++) {
-                for (let k = 0; k < columnasA; k++) {
-                    resultado[i][j] += matrizA[i][k] * matrizB[k][j];
-                }
-            }
-        }
-        
-        return resultado;
-    }
-
-
-    function transponerMatriz(matriz) {
-        const filas = matriz.length;
-        const columnas = matriz[0].length;
-        const resultado = [];
-        
-        for (let j = 0; j < columnas; j++) {
-            resultado[j] = [];
-            for (let i = 0; i < filas; i++) {
-                resultado[j][i] = matriz[i][j];
-            }
-        }
-        
-        return resultado;
-    }
-
-
-    function calcularDeterminante2x2(matriz) {
-        
-        return (matriz[0][0] * matriz[1][1]) - (matriz[0][1] * matriz[1][0]);
-    }
-
-
-    function calcularDeterminante3x3(matriz) {
-        const a = matriz[0][0], b = matriz[0][1], c = matriz[0][2];
-        const d = matriz[1][0], e = matriz[1][1], f = matriz[1][2];
-        const g = matriz[2][0], h = matriz[2][1], i = matriz[2][2];
-        
-        // Diagonal principal (+)
-        const suma = (a * e * i) + (b * f * g) + (c * d * h);
-        
-        // Diagonal secundaria (-)
-        const resta = (c * e * g) + (a * f * h) + (b * d * i);
-        
-        return suma - resta;
-    }
    
-    function calcularDeterminante4x4(matriz) {
+    let timeoutSiguienteDesafio = null;
+
+    
+    // EVENTOS
+
+    if (btnBasico)      btnBasico.addEventListener('click',      () => irAJuego('basico'));
+    if (btnIntermedio)  btnIntermedio.addEventListener('click',  () => irAJuego('intermedio'));
+    if (btnAvanzado)    btnAvanzado.addEventListener('click',    () => irAJuego('avanzado'));
+    if (btnVerificar)   btnVerificar.addEventListener('click',   verificarRespuesta);
+    if (btnVolver)      btnVolver.addEventListener('click',      volverInicio);
+    if (btnReintentar)  btnReintentar.addEventListener('click',  reiniciarJuego);
+    if (btnBorrarDatos) btnBorrarDatos.addEventListener('click', () => Storage.borrarTodo());
+
+    if (btnMenu) {
+        btnMenu.addEventListener('click', () => {
+            ocultarGameOver();
+            volverInicio();
+        });
+    }
+
+    if (inputRespuesta) {
+        inputRespuesta.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') verificarRespuesta();
+        });
+    }
+
+    
+    // OPERACIONES CON MATRICES
+
+    function generarMatriz(filas, columnas, max = 10) {
+        return Array.from({ length: filas }, () =>
+            Array.from({ length: columnas }, () => Math.floor(Math.random() * max) + 1)
+        );
+    }
+
+    function sumarMatrices(a, b) {
+        return a.map((fila, i) => fila.map((val, j) => val + b[i][j]));
+    }
+
+    function restarMatrices(a, b) {
+        return a.map((fila, i) => fila.map((val, j) => val - b[i][j]));
+    }
+
+    function multiplicarMatrices(a, b) {
+        const filasA = a.length, colsA = a[0].length, colsB = b[0].length;
+        return Array.from({ length: filasA }, (_, i) =>
+            Array.from({ length: colsB }, (_, j) =>
+                Array.from({ length: colsA }, (_, k) => a[i][k] * b[k][j])
+                    .reduce((s, v) => s + v, 0)
+            )
+        );
+    }
+
+    function transponerMatriz(m) {
+        return m[0].map((_, j) => m.map(fila => fila[j]));
+    }
+
+    function calcularDeterminante2x2(m) {
+        return m[0][0] * m[1][1] - m[0][1] * m[1][0];
+    }
+
+    function calcularDeterminante3x3(m) {
+        const [a, b, c] = m[0];
+        const [d, e, f] = m[1];
+        const [g, h, i] = m[2];
+        return (a*e*i + b*f*g + c*d*h) - (c*e*g + a*f*h + b*d*i);
+    }
+
+    function calcularDeterminante4x4(m) {
         let det = 0;
-        
         for (let j = 0; j < 4; j++) {
-            // Crear submatriz 3x3
-            const submatriz = [];
-            for (let i = 1; i < 4; i++) {
-                const fila = [];
-                for (let k = 0; k < 4; k++) {
-                    if (k !== j) {
-                        fila.push(matriz[i][k]);
-                    }
-                }
-                submatriz.push(fila);
-            }
-            
-            // Calcular cofactor
-            const cofactor = matriz[0][j] * calcularDeterminante3x3(submatriz);
-            
-            // Alternar signo
-            if (j % 2 === 0) {
-                det += cofactor;
-            } else {
-                det -= cofactor;
-            }
+            const sub = m.slice(1).map(fila => fila.filter((_, k) => k !== j));
+            const cofactor = m[0][j] * calcularDeterminante3x3(sub);
+            det += j % 2 === 0 ? cofactor : -cofactor;
         }
-        
         return det;
     }
 
+   
+    // PUNTOS Y ESTADÍSTICAS EN PANTALLA
+    
 
-    function mostrarMatriz(matriz, contenedorId) {
-        const contenedor = document.getElementById(contenedorId);
-        let html = '<div style="display: inline-block; margin: 10px;">';
-        
-        for (let i = 0; i < matriz.length; i++) {
-            html += '<div style="display: flex;">';
-            
-            for (let j = 0; j < matriz[i].length; j++) {
-                html += `
-                    <div style="
-                        width: 50px;
-                        height: 50px;
-                        background: linear-gradient(135deg, #667eea, #764ba2);
-                        color: white;
-                        display: flex;
-                        align-items: center;
-                        justify-content: center;
-                        margin: 5px;
-                        border-radius: 8px;
-                        font-weight: bold;
-                        font-size: 20px;
-                    ">
-                        ${matriz[i][j]}
-                    </div>
-                `;
-            }
-            
-            html += '</div>';
-        }
-        
-        html += '</div>';
-        contenedor.innerHTML += html;
+    function calcularPuntos(nivel, rachaBonus) {
+        const base = { basico: 10, intermedio: 20, avanzado: 30 }[nivel] || 10;
+        const bonus = rachaBonus && rachaActual > 1
+            ? Math.floor(base * (rachaActual - 1) * 0.1)
+            : 0;
+        return base + bonus;
     }
 
-   function mostrarDesafio(pregunta, simbolo) {
+    function actualizarDisplayPuntos() {
+        const puntosDisplay = document.getElementById('puntos-display');
+        const rachaDisplay  = document.getElementById('racha-display');
+        const recordDisplay = document.getElementById('record-display');
+
+        if (puntosDisplay) {
+            puntosDisplay.textContent = puntos;
+            puntosDisplay.style.transform = 'scale(1.2)';
+            setTimeout(() => puntosDisplay.style.transform = 'scale(1)', 200);
+        }
+        if (rachaDisplay) {
+            rachaDisplay.textContent = rachaActual;
+            rachaDisplay.parentElement.style.background = rachaActual >= 3
+                ? 'linear-gradient(135deg, #ef4444, #dc2626)'
+                : 'linear-gradient(135deg, #10b981, #059669)';
+        }
+        if (recordDisplay) recordDisplay.textContent = recordPersonal;
+
+        if (puntos > recordPersonal) {
+            recordPersonal = puntos;
+            if (Storage.guardarRecord(puntos)) mostrarMensajeNuevoRecord();
+        }
+    }
+
+    function mostrarAnimacionPuntos(puntosGanados) {
+        const el = document.createElement('div');
+        el.textContent = `+${puntosGanados} pts!`;
+        el.style.cssText = `
+            position:fixed;top:50%;left:50%;
+            transform:translate(-50%,-50%);
+            font-size:48px;font-weight:bold;color:#f59e0b;
+            text-shadow:2px 2px 4px rgba(0,0,0,.3);
+            animation:puntosAnimation 1s ease-out;
+            pointer-events:none;z-index:1000;
+        `;
+        inyectarEstilo('puntos-animation-style', `
+            @keyframes puntosAnimation {
+                0%   { opacity:0; transform:translate(-50%,-50%) scale(.5); }
+                50%  { opacity:1; transform:translate(-50%,-50%) scale(1.2); }
+                100% { opacity:0; transform:translate(-50%,-80%) scale(1); }
+            }
+        `);
+        document.body.appendChild(el);
+        setTimeout(() => el.remove(), 1000);
+    }
+
+    function mostrarMensajeNuevoRecord() {
+        const el = document.createElement('div');
+        el.textContent = ' ¡NUEVO RÉCORD! ';
+        el.style.cssText = `
+            position:fixed;top:20%;left:50%;
+            transform:translate(-50%,-50%);
+            font-size:36px;font-weight:bold;color:#f59e0b;
+            text-shadow:3px 3px 6px rgba(0,0,0,.5);
+            animation:recordAnimation 2s ease-out;
+            pointer-events:none;z-index:1000;
+            background:rgba(255,255,255,.9);
+            padding:20px 40px;border-radius:15px;
+            border:4px solid #f59e0b;
+        `;
+        inyectarEstilo('record-animation-style', `
+            @keyframes recordAnimation {
+                0%   { opacity:0; transform:translate(-50%,-50%) scale(.5) rotate(-10deg); }
+                50%  { opacity:1; transform:translate(-50%,-50%) scale(1.2) rotate(5deg); }
+                100% { opacity:0; transform:translate(-50%,-50%) scale(1) rotate(0deg); }
+            }
+        `);
+        document.body.appendChild(el);
+        setTimeout(() => el.remove(), 2000);
+    }
+
+    function inyectarEstilo(id, css) {
+        if (!document.getElementById(id)) {
+            const s = document.createElement('style');
+            s.id = id;
+            s.textContent = css;
+            document.head.appendChild(s);
+        }
+    }
+
+    function reiniciarPuntos() {
+        puntos = 0;
+        rachaActual = 0;
+        mejorRacha  = 0;   
+        totalAciertos = 0;
+        totalIntentos = 0;
+        actualizarDisplayPuntos();
+    }
+
+    // SISTEMA DE VIDAS
+
+    function actualizarDisplayVidas() {
+        const vidasDisplay = document.getElementById('vidas-display');
+        if (!vidasDisplay) return;
+        vidasDisplay.textContent =
+            '❤️'.repeat(vidasActuales) + '🖤'.repeat(VIDAS_MAXIMAS - vidasActuales);
+        vidasDisplay.classList.add('vida-perdida');
+        setTimeout(() => vidasDisplay.classList.remove('vida-perdida'), 500);
+    }
+
+    function perderVida() {
+        if (vidasActuales > 0) {
+            vidasActuales--;
+            actualizarDisplayVidas();
+            if (vidasActuales === 0) setTimeout(mostrarGameOver, 1000);
+        }
+    }
+
+    function reiniciarVidas() {
+        vidasActuales = VIDAS_MAXIMAS;
+        actualizarDisplayVidas();
+    }
+
+   
+    // GAME OVER
+    
+
+    function mostrarGameOver() {
+        Storage.guardarPuntuacion(puntos, nivelActual);
+        Storage.actualizarEstadisticas({ aciertos: totalAciertos, intentos: totalIntentos, mejorRacha });
+
+        document.getElementById('modal-puntos-finales').textContent = puntos;
+        document.getElementById('modal-aciertos').textContent = `${totalAciertos}/${totalIntentos}`;
+        document.getElementById('modal-mejor-racha').textContent = mejorRacha;
+        document.getElementById('modal-gameover').style.display = 'flex';
+    }
+
+    function ocultarGameOver() {
+        document.getElementById('modal-gameover').style.display = 'none';
+    }
+
+    function reiniciarJuego() {
+       
+        if (timeoutSiguienteDesafio) {
+            clearTimeout(timeoutSiguienteDesafio);
+            timeoutSiguienteDesafio = null;
+        }
+        ocultarGameOver();
+        reiniciarVidas();
+        reiniciarPuntos();
+        generarDesafio(nivelActual);
+        if (inputRespuesta) inputRespuesta.value = '';
+        if (mensajeDiv)     mensajeDiv.innerHTML = '';
+    }
+
+   
+    // RENDERIZADO DE MATRICES
+   
+    function htmlMatriz(matriz) {
+        return `<div style="display:inline-block;margin:10px;vertical-align:middle;">` +
+            matriz.map(fila =>
+                `<div style="display:flex;">` +
+                fila.map(val =>
+                    `<div style="
+                        width:50px;height:50px;
+                        background:linear-gradient(135deg,#667eea,#764ba2);
+                        color:white;display:flex;
+                        align-items:center;justify-content:center;
+                        margin:5px;border-radius:8px;
+                        font-weight:bold;font-size:20px;
+                        box-shadow:0 4px 6px rgba(0,0,0,.2);
+                    ">${val}</div>`
+                ).join('') +
+                `</div>`
+            ).join('') +
+        `</div>`;
+    }
+
+ 
+    function mostrarDesafio(pregunta, simbolo) {
         const container = document.getElementById('matrices-container');
+
+        let html = `<h3 style="margin-bottom:20px;color:#333;">${pregunta}</h3>`;
+
         
-        // Limpiar contenedor
-        container.innerHTML = `<h3 style="margin-bottom: 20px;">${pregunta}</h3>`;
-        
-        // Crear un contenedor flex para alinear todo
-        const flexContainer = document.createElement('div');
-        flexContainer.style.display = 'flex';
-        flexContainer.style.justifyContent = 'center';
-        flexContainer.style.alignItems = 'center';
-        flexContainer.style.flexWrap = 'wrap';
-        flexContainer.style.gap = '10px';
-        container.appendChild(flexContainer);
-        
-        // Mostrar primera matriz
-        mostrarMatriz(matrizA, 'matrices-container');
-        
-        // Si hay segunda matriz (suma, resta, multiplicación)
+        html += `<div style="display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:10px;">`;
+        html += htmlMatriz(matrizA);
+
         if (matrizB !== null) {
-            container.innerHTML += `
-                <div style="font-size: 40px; margin: 0 10px; display: inline-block; vertical-align: middle; color: #667eea; font-weight: bold;">
-                    ${simbolo}
-                </div>
-            `;
-            mostrarMatriz(matrizB, 'matrices-container');
-            container.innerHTML += `
-                <div style="font-size: 40px; margin: 0 10px; display: inline-block; vertical-align: middle; color: #667eea; font-weight: bold;">
-                    =
-                </div>
-                <div style="font-size: 40px; margin: 0 10px; display: inline-block; vertical-align: middle; color: #764ba2; font-weight: bold;">
-                    ?
-                </div>
-            `;
+            
+            html += `<div style="font-size:40px;font-weight:bold;color:#667eea;">${simbolo}</div>`;
+            html += htmlMatriz(matrizB);
+            html += `<div style="font-size:40px;font-weight:bold;color:#667eea;">=</div>`;
+            html += `<div style="font-size:40px;font-weight:bold;color:#764ba2;">?</div>`;
         } else {
-            // Para transpuesta o determinante
-            if (simbolo === 'T') {
-                container.innerHTML += `
-                    <div style="font-size: 24px; margin: 20px 0; padding: 15px; background: #f0f9ff; border-radius: 10px; color: #1e40af;">
-                        Recuerda: La transpuesta intercambia filas por columnas.<br>
-                        Formato de respuesta: [[a,b,c],[d,e,f],[g,h,i]]
-                    </div>
-                `;
-            } else if (simbolo === 'det') {
-                container.innerHTML += `
-                    <div style="font-size: 24px; margin: 20px 0; padding: 15px; background: #fef2f2; border-radius: 10px; color: #991b1b;">
-                        Recuerda: El determinante es un número.<br>
-                        Formato de respuesta: Solo escribe el número
-                    </div>
-                `;
-            }
+            
+            const esTrans  = simbolo === 'T';
+            const color    = esTrans ? '#1e40af' : '#991b1b';
+            const bgColor  = esTrans ? '#f0f9ff' : '#fef2f2';
+            const mensaje  = esTrans
+                ? 'La transpuesta intercambia filas por columnas.<br>Formato: <code>[[a,b],[c,d]]</code>'
+                : 'El determinante es un número.<br>Escribe solo el número entero.';
+            html += `<div style="font-size:18px;padding:15px;background:${bgColor};border-radius:10px;color:${color};"> ${mensaje}</div>`;
         }
+
+        html += `</div>`;
+        container.innerHTML = html;
     }
-    
-    
+
+    // GENERACIÓN DE DESAFÍOS
+  
     function generarDesafio(nivel) {
-        let operacion;
-        let tamano;
-        let maxNumero;
-        let pregunta;
-        let simbolo;
         
-        
+        matrizB = null;
+
+        let operacion, tamano, maxNumero, pregunta, simbolo;
+
         if (nivel === 'basico') {
-            console.log('Nivel Básico: Suma y Resta');
-            
-            const operaciones = ['suma', 'resta'];
-            operacion = operaciones[Math.floor(Math.random() * operaciones.length)];
-            tamano = 2;
-            maxNumero = 5;
-            
-            matrizA = generarMatriz(tamano, tamano, maxNumero);
-            matrizB = generarMatriz(tamano, tamano, maxNumero);
-            
+            const ops = ['suma', 'resta'];
+            operacion  = ops[Math.floor(Math.random() * ops.length)];
+            tamano     = 2;
+            maxNumero  = 5;
+            matrizA    = generarMatriz(tamano, tamano, maxNumero);
+            matrizB    = generarMatriz(tamano, tamano, maxNumero);
+
             if (operacion === 'suma') {
                 respuestaCorrecta = sumarMatrices(matrizA, matrizB);
-                pregunta = 'SUMA estas matrices (elemento por elemento):';
-                simbolo = '+';
+                pregunta = ' SUMA estas matrices (elemento por elemento):';
+                simbolo  = '+';
             } else {
                 respuestaCorrecta = restarMatrices(matrizA, matrizB);
-                pregunta = 'RESTA estas matrices (elemento por elemento):';
-                simbolo = '-';
+                pregunta = ' RESTA estas matrices (elemento por elemento):';
+                simbolo  = '−';
             }
-            
-        } 
-        
-        else if (nivel === 'intermedio') {
-            console.log('Nivel Intermedio: Multiplicación de Matrices');
-            
-            operacion = 'multiplicacion';
-            tamano = Math.random() < 0.6 ? 2 : 3;
+
+        } else if (nivel === 'intermedio') {
+            tamano    = Math.random() < 0.6 ? 2 : 3;
             maxNumero = 8;
-            
-            matrizA = generarMatriz(tamano, tamano, maxNumero);
-            matrizB = generarMatriz(tamano, tamano, maxNumero);
-            
+            matrizA   = generarMatriz(tamano, tamano, maxNumero);
+            matrizB   = generarMatriz(tamano, tamano, maxNumero);
             respuestaCorrecta = multiplicarMatrices(matrizA, matrizB);
-            pregunta = `MULTIPLICA estas matrices ${tamano}x${tamano} (fila × columna):`;
-            simbolo = '×';
-            
-        } 
-        
-        else if (nivel === 'avanzado') {
-            console.log(' Nivel Avanzado: Transpuesta y Determinante');
-            
-            const operaciones = ['transpuesta', 'determinante'];
-            operacion = operaciones[Math.floor(Math.random() * operaciones.length)];
-            tamano = Math.random() < 0.7 ? 3 : 4;
-            maxNumero = 10;
-            
+            pregunta  = ` MULTIPLICA estas matrices ${tamano}×${tamano} (fila × columna):`;
+            simbolo   = '×';
+
+        } else if (nivel === 'avanzado') {
+            const ops = ['transpuesta', 'determinante'];
+            operacion  = ops[Math.floor(Math.random() * ops.length)];
+            tamano     = Math.random() < 0.7 ? 3 : 4;
+            maxNumero  = 10;
+            matrizA    = generarMatriz(tamano, tamano, maxNumero);
+
             if (operacion === 'transpuesta') {
-                matrizA = generarMatriz(tamano, tamano, maxNumero);
                 respuestaCorrecta = transponerMatriz(matrizA);
-                pregunta = `Calcula la TRANSPUESTA de esta matriz ${tamano}x${tamano}:`;
-                simbolo = 'T';
-                matrizB = null;
-                
-            } else if (operacion === 'determinante') {
-                matrizA = generarMatriz(tamano, tamano, maxNumero);
-                
+                pregunta = ` Calcula la TRANSPUESTA de esta matriz ${tamano}×${tamano}:`;
+                simbolo  = 'T';
                
-                if (tamano === 3) {
-                    respuestaCorrecta = calcularDeterminante3x3(matrizA);
-                } else {
-                    respuestaCorrecta = calcularDeterminante4x4(matrizA);
-                }
-                
-                pregunta = `Calcula el DETERMINANTE de esta matriz ${tamano}x${tamano}:`;
-                simbolo = 'det';
-                matrizB = null;
-            }
+            } else {
+                respuestaCorrecta = tamano === 3
+                    ? calcularDeterminante3x3(matrizA)
+                    : calcularDeterminante4x4(matrizA);
+                pregunta = ` Calcula el DETERMINANTE de esta matriz ${tamano}×${tamano}:`;
+                simbolo  = 'det';
+            }   
         }
-        
-        // Mostrar el desafío en pantalla
+
         mostrarDesafio(pregunta, simbolo);
-        
-        
+        console.log('Desafío:', operacion || nivel, `(${tamano}×${tamano}) →`, respuestaCorrecta);
     }
-    
+
+    // NAVEGACIÓN
    
     function irAJuego(nivel) {
-        console.log(' Iniciando juego en nivel:', nivel);
         
-        // Guardar nivel actual
+        if (timeoutSiguienteDesafio) {
+            clearTimeout(timeoutSiguienteDesafio);
+            timeoutSiguienteDesafio = null;
+        }
+
         nivelActual = nivel;
-        
-        // Cambiar pantallas
+        reiniciarVidas();
+        reiniciarPuntos();
+
         pantallaInicio.style.display = 'none';
-        pantallaJuego.style.display = 'block';
-        
-        // Mostrar nombre del nivel
+        pantallaJuego.style.display  = 'block';
+
         const textoNivel = document.getElementById('texto-nivel');
         if (textoNivel) {
-            if (nivel === 'basico') {
-                textoNivel.textContent = ' Básico - Suma y Resta';
-                textoNivel.style.color = '#3b82f6';
-            } else if (nivel === 'intermedio') {
-                textoNivel.textContent = ' Intermedio - Multiplicación';
-                textoNivel.style.color = '#10b981';
-            } else if (nivel === 'avanzado') {
-                textoNivel.textContent = 'Avanzado - Transpuesta y Determinante';
-                textoNivel.style.color = '#ef4444';
-            }
+            const config = {
+                basico:     { texto: 'Básico — Suma y Resta',                color: '#3b82f6' },
+                intermedio: { texto: 'Intermedio — Multiplicación',           color: '#10b981' },
+                avanzado:   { texto: 'Avanzado — Transpuesta y Determinante', color: '#ef4444' }
+            };
+            textoNivel.textContent = config[nivel].texto;
+            textoNivel.style.color  = config[nivel].color;
         }
-        
-        // Generar desafío según el nivel
+
         generarDesafio(nivel);
-        
-        // Limpiar input y mensaje
-        const inputRespuesta = document.getElementById('respuesta-usuario');
-        const mensajeDiv = document.getElementById('mensaje-resultado');
-        
-        if (inputRespuesta) inputRespuesta.value = '';
-        if (mensajeDiv) mensajeDiv.innerHTML = '';
+        if (inputRespuesta) { inputRespuesta.value = ''; inputRespuesta.focus(); }
+        if (mensajeDiv)     mensajeDiv.innerHTML = '';
     }
-    
-    
+
     function volverInicio() {
-        console.log('Volviendo al inicio...');
+        
+        if (timeoutSiguienteDesafio) {
+            clearTimeout(timeoutSiguienteDesafio);
+            timeoutSiguienteDesafio = null;
+        }
+
         pantallaInicio.style.display = 'block';
-        pantallaJuego.style.display = 'none';
-        
-        // Limpiar mensaje
-        const mensajeDiv = document.getElementById('mensaje-resultado');
-        const inputRespuesta = document.getElementById('respuesta-usuario');
-        
-        if (mensajeDiv) mensajeDiv.innerHTML = '';
-        if (inputRespuesta) inputRespuesta.value = '';
+        pantallaJuego.style.display  = 'none';
+        reiniciarPuntos();
+        reiniciarVidas(); 
+
+        if (mensajeDiv)     mensajeDiv.innerHTML = '';
+        if (inputRespuesta) inputRespuesta.value  = '';
     }
-    
+
+   
+    // VERIFICACIÓN DE RESPUESTAS
     
     function verificarRespuesta() {
-        const inputRespuesta = document.getElementById('respuesta-usuario');
-        const mensajeDiv = document.getElementById('mensaje-resultado');
-        const respuestaUsuario = inputRespuesta.value.trim();
         
+        if (timeoutSiguienteDesafio) return;
+
+        const respuestaUsuario = inputRespuesta ? inputRespuesta.value.trim() : '';
+
         if (!respuestaUsuario) {
-            mensajeDiv.innerHTML = `
-                <p style="color: orange; font-size: 18px; margin-top: 20px;">
-                    Por favor, ingresa una respuesta
-                </p>
-            `;
+            mensajeDiv.innerHTML = '<p style="color:orange;font-size:18px;margin-top:20px;">⚠️ Por favor, ingresa una respuesta</p>';
             return;
         }
-        
+
+        totalIntentos++;
         let esCorrecta = false;
-        
-        // Si la respuesta correcta es un número (determinante)
+
         if (typeof respuestaCorrecta === 'number') {
-            const numeroUsuario = parseFloat(respuestaUsuario);
-            esCorrecta = numeroUsuario === respuestaCorrecta;
             
-            if (esCorrecta) {
-                mensajeDiv.innerHTML = `
-                    <div style="background: #d1fae5; padding: 20px; border-radius: 10px; margin-top: 20px; border: 3px solid #10b981;">
-                        <p style="color: #065f46; font-size: 28px; font-weight: bold; margin: 0;">
-                            ¡CORRECTO! 
-                        </p>
-                        <p style="color: #047857; font-size: 18px; margin: 10px 0 0 0;">
-                            El determinante es <strong>${respuestaCorrecta}</strong>
-                        </p>
-                    </div>
-                `;
-            } else {
-                mensajeDiv.innerHTML = `
-                    <div style="background: #fee2e2; padding: 20px; border-radius: 10px; margin-top: 20px; border: 3px solid #ef4444;">
-                        <p style="color: #991b1b; font-size: 24px; font-weight: bold; margin: 0;">
-                            Incorrecto
-                        </p>
-                        <p style="color: #b91c1c; font-size: 18px; margin: 10px 0 0 0;">
-                            La respuesta correcta es: <strong>${respuestaCorrecta}</strong>
-                        </p>
-                    </div>
-                `;
-            }
-        } 
-        // Si la respuesta correcta es una matriz
-        else {
+            const numUsuario = parseFloat(respuestaUsuario);
+            esCorrecta = !isNaN(numUsuario) && numUsuario === respuestaCorrecta;
+            procesarResultado(esCorrecta, `El determinante correcto es <strong>${respuestaCorrecta}</strong>`);
+        } else {
+            
             try {
                 const matrizUsuario = JSON.parse(respuestaUsuario);
-                esCorrecta = JSON.stringify(matrizUsuario) === JSON.stringify(respuestaCorrecta);
-                
-                if (esCorrecta) {
-                    mensajeDiv.innerHTML = `
-                        <div style="background: #d1fae5; padding: 20px; border-radius: 10px; margin-top: 20px; border: 3px solid #10b981;">
-                            <p style="color: #065f46; font-size: 28px; font-weight: bold; margin: 0;">
-                                ¡CORRECTO!
-                            </p>
-                            <p style="color: #047857; font-size: 18px; margin: 10px 0 0 0;">
-                                ¡Excelente trabajo! La matriz es correcta.
-                            </p>
-                        </div>
-                    `;
-                } else {
-                    mensajeDiv.innerHTML = `
-                        <div style="background: #fee2e2; padding: 20px; border-radius: 10px; margin-top: 20px; border: 3px solid #ef4444;">
-                            <p style="color: #991b1b; font-size: 24px; font-weight: bold; margin: 0;">
-                                Incorrecto
-                            </p>
-                            <p style="color: #b91c1c; font-size: 18px; margin: 10px 0 0 0;">
-                                La respuesta correcta es:<br>
-                                <code style="background: white; padding: 5px 10px; border-radius: 5px; display: inline-block; margin-top: 5px;">
-                                    ${JSON.stringify(respuestaCorrecta)}
-                                </code>
-                            </p>
-                        </div>
-                    `;
-                }
-            } catch (error) {
+               
+                const normalizar = m => m.map(f => f.map(Number));
+                esCorrecta = JSON.stringify(normalizar(matrizUsuario)) === JSON.stringify(normalizar(respuestaCorrecta));
+                procesarResultado(esCorrecta, '¡Excelente! La matriz es correcta.');
+            } catch {
                 mensajeDiv.innerHTML = `
-                    <div style="background: #fef3c7; padding: 20px; border-radius: 10px; margin-top: 20px; border: 3px solid #f59e0b;">
-                        <p style="color: #92400e; font-size: 20px; font-weight: bold; margin: 0;">
-                            Formato incorrecto
-                        </p>
-                        <p style="color: #b45309; font-size: 16px; margin: 10px 0 0 0;">
-                            Usa el formato: <code style="background: white; padding: 2px 8px; border-radius: 3px;">[[1,2],[3,4]]</code>
+                    <div style="background:#fef3c7;padding:20px;border-radius:10px;margin-top:20px;border:3px solid #f59e0b;">
+                        <p style="color:#92400e;font-size:20px;font-weight:bold;margin:0;">⚠️ Formato incorrecto</p>
+                        <p style="color:#b45309;font-size:16px;margin:10px 0 0;">
+                            Usa el formato: <code style="background:white;padding:2px 8px;border-radius:3px;">[[1,2],[3,4]]</code>
                         </p>
                     </div>
                 `;
             }
         }
     }
-    
+
+    function procesarResultado(esCorrecta, mensajeExtra) {
+        if (esCorrecta) {
+            totalAciertos++;
+            rachaActual++;
+            if (rachaActual > mejorRacha) mejorRacha = rachaActual;
+
+            const puntosGanados = calcularPuntos(nivelActual, rachaActual > 1);
+            puntos += puntosGanados;
+            actualizarDisplayPuntos();
+            mostrarAnimacionPuntos(puntosGanados);
+
+            let mensajeRacha = '';
+            if (rachaActual >= 5) mensajeRacha = '<br> ¡RACHA ÉPICA!';
+            else if (rachaActual >= 3) mensajeRacha = '<br> ¡Racha en llamas!';
+
+            mensajeDiv.innerHTML = `
+                <div style="background:#d1fae5;padding:20px;border-radius:10px;margin-top:20px;border:3px solid #10b981;">
+                    <p style="color:#065f46;font-size:28px;font-weight:bold;margin:0;"> ¡CORRECTO!</p>
+                    <p style="color:#047857;font-size:18px;margin:10px 0 0;">
+                        ${mensajeExtra}<br>+${puntosGanados} puntos${mensajeRacha}
+                    </p>
+                    <p style="color:#059669;font-size:14px;margin:10px 0 0;font-style:italic;"> Generando nuevo desafío...</p>
+                </div>
+            `;
+
+            
+            timeoutSiguienteDesafio = setTimeout(() => {
+                timeoutSiguienteDesafio = null;
+                generarDesafio(nivelActual);
+                if (inputRespuesta) { inputRespuesta.value = ''; inputRespuesta.focus(); }
+                mensajeDiv.innerHTML = '';
+            }, 2000);
+
+        } else {
+            rachaActual = 0;
+            perderVida();
+            actualizarDisplayPuntos();
+
+            const respuestaTexto = typeof respuestaCorrecta === 'number'
+                ? respuestaCorrecta
+                : `<code style="background:white;padding:5px 10px;border-radius:5px;display:inline-block;margin-top:5px;">${JSON.stringify(respuestaCorrecta)}</code>`;
+
+            mensajeDiv.innerHTML = `
+                <div style="background:#fee2e2;padding:20px;border-radius:10px;margin-top:20px;border:3px solid #ef4444;">
+                    <p style="color:#991b1b;font-size:24px;font-weight:bold;margin:0;"> Incorrecto</p>
+                    <p style="color:#b91c1c;font-size:18px;margin:10px 0 0;">
+                        La respuesta correcta es: ${respuestaTexto}<br>
+                         Racha perdida | Vidas: ${vidasActuales}/${VIDAS_MAXIMAS}
+                    </p>
+                </div>
+            `;
+
+            // FIX: solo avanzar al siguiente desafío si aún quedan vidas
+            if (vidasActuales > 0) {
+                timeoutSiguienteDesafio = setTimeout(() => {
+                    timeoutSiguienteDesafio = null;
+                    generarDesafio(nivelActual);
+                    if (inputRespuesta) { inputRespuesta.value = ''; inputRespuesta.focus(); }
+                    mensajeDiv.innerHTML = '';
+                }, 3500);
+            }
+        }
+    }
+
+
 });
