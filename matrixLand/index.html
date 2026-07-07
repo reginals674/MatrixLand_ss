@@ -3,144 +3,224 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MATRIXLAND - Juego Educativo de Matrices</title>
+    <title>MATRIXLAND 2.0 - Neon Drag Experience</title>
     
- 
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+
+    <div id="splash-screen">
+  <div class="corner corner-tl"></div>
+  <div class="corner corner-tr"></div>
+  <div class="corner corner-bl"></div>
+  <div class="corner corner-br"></div>
+
+  <div class="splash-particles" id="splash-sparks"></div>
+
+  <div class="splash-logo-wrap">
+    <div style="position:absolute;">
+      <div class="pulse-ring"></div>
+      <div class="pulse-ring"></div>
+      <div class="pulse-ring"></div>
+    </div>
+    <div class="ring-outer"></div>
+    <div class="ring-inner"></div>
+    <div class="splash-logo-img">
+      <!-- CAMBIA ESTO por tu logo real: -->
+      <img src="C:/MatrixLand_ss/LogoMatrixLand.jpg" alt="MatrixLand">
+    </div>
+  </div>
+
+  <div class="splash-title">
+    <h1>MATRIXLAND</h1>
+    <div class="version">v 2.0 · Neon Sequence</div>
+  </div>
+
+  <div class="splash-loader">
+    <div class="loader-track">
+      <div class="loader-bar" id="splash-bar"></div>
+    </div>
+    <div class="loader-label" id="splash-label">Iniciando protocolo...</div>
+  </div>
+</div>
     
-    
+    <div id="bg-particles"></div>
+
     <div id="pantalla-inicio">
-        <h1> MATRIXLAND</h1>
-        <p class="subtitulo">¡Aprende matrices de forma progresiva!</p>
-        
-        <div class="nivel-card nivel-basico">
-            <button id="btn-basico" class="btn-nivel">Nivel Básico</button>
-            <p class="nivel-descripcion">
-                 Aprende: <strong>Suma y Resta</strong><br>
-                Matrices 2x2 con números del 1 al 5
-            </p>
+        <div class="header-logo">
+            <h1><span class="neon-text">MATRIX</span>LAND</h1>
+            <div class="logo-icon"><i class="fas fa-microchip"></i></div>
         </div>
+        <p class="subtitulo">Inicia la secuencia de aprendizaje progresivo</p>
         
-        <div class="nivel-card nivel-intermedio">
-            <button id="btn-intermedio" class="btn-nivel"> Nivel Intermedio</button>
-            <p class="nivel-descripcion">
-                Aprende: <strong>Multiplicación</strong><br>
-                Matrices 2x2 y 3x3 con números del 1 al 8
-            </p>
+        <div class="niveles-container">
+            <div class="nivel-card nivel-basico" id="card-basico">
+                <div class="nivel-icon"><i class="fas fa-plus-minus"></i></div>
+                <h3>Nivel Básico</h3>
+                <p class="nivel-descripcion">
+                    Secuencia: <strong>Suma y Resta</strong><br>
+                    Dimensión 2x2 | Rango [1-5]
+                </p>
+                <button id="btn-basico" class="btn-nivel">INICIAR</button>
+            </div>
+            
+            <div class="nivel-card nivel-intermedio" id="card-intermedio">
+                <div class="nivel-icon"><i class="fas fa-times"></i></div>
+                <h3>Nivel Intermedio</h3>
+                <p class="nivel-descripcion">
+                    Secuencia: <strong>Multiplicación</strong><br>
+                    Dimensión 2x2 & 3x3 | Rango [1-8]
+                </p>
+                <button id="btn-intermedio" class="btn-nivel">INICIAR</button>
+            </div>
+            
+            <div class="nivel-card nivel-avanzado" id="card-avanzado">
+                <div class="nivel-icon"><i class="fas fa-project-diagram"></i></div>
+                <h3>Nivel Avanzado</h3>
+                <p class="nivel-descripcion">
+                    Secuencia: <strong>Transpuesta y Det.</strong><br>
+                    Dimensión 2x2 & 3x3 | Rango [1-10]
+                </p>
+                <button id="btn-avanzado" class="btn-nivel">INICIAR</button>
+            </div>
+
+            <div class="nivel-card nivel-extra" id="card-extra">
+                <div class="nivel-icon"><i class="fas fa-layer-group"></i></div>
+                <h3>Retos Extra</h3>
+                <p class="nivel-descripcion">
+                    Secuencia: <strong>Operaciones Combinadas</strong><br>
+                    2 Fases por desafío | Dimensión 2x2 & 3x3
+                </p>
+                <button id="btn-extra" class="btn-nivel">INICIAR</button>
+            </div>
         </div>
-        
-        <div class="nivel-card nivel-avanzado">
-            <button id="btn-avanzado" class="btn-nivel"> Nivel Avanzado</button>
-            <p class="nivel-descripcion">
-                Aprende: <strong>Transpuesta y Determinante</strong><br>
-                Matrices 3x3 y 4x4 con números del 1 al 10
-            </p>
+
+        <div class="estadisticas-globales-container">
+            <h3><i class="fas fa-chart-line"></i> Terminal de Estado Global</h3>
+            <div class="stats-grid-inicio">
+                <div class="stat-item-inicio">
+                    <span class="stat-icon-inicio"><i class="fas fa-trophy"></i></span>
+                    <div class="stat-info-inicio">
+                        <span id="global-record" class="stat-numero-inicio">0</span>
+                        <span class="stat-texto-inicio">Récord Máximo</span>
+                    </div>
+                </div>
+                <div class="stat-item-inicio">
+                    <span class="stat-icon-inicio"><i class="fas fa-gamepad"></i></span>
+                    <div class="stat-info-inicio">
+                        <span id="global-partidas" class="stat-numero-inicio">0</span>
+                        <span class="stat-texto-inicio">Ciclos Jugados</span>
+                    </div>
+                </div>
+            </div>
+             <button id="btn-borrar-datos" class="btn-danger-futuristic">
+                <i class="fas fa-trash-alt"></i> Resetear Núcleo de Datos
+            </button>
         </div>
     
     </div>
 
-    
     <div id="pantalla-juego" style="display: none;">
         
-        
-        <div class="estadisticas-panel">
-            
-            
-            <div class="stat-card stat-nivel">
-                <div class="stat-label">NIVEL</div>
-                <div id="texto-nivel" class="stat-value"> Básico</div>
+        <div class="game-header">
+            <div class="stat-bubble stat-nivel">
+                <div class="stat-label">PROTOCOLO</div>
+                <div id="texto-nivel" class="stat-value">Básico</div>
             </div>
 
-            <div class="stat-card stat-vidas">
-                <div class="stat-label">VIDAS</div>
-                <div id="vidas-display" class="stat-value">❤️❤️❤️</div>
+            <div class="control-center">
+                <div id="vidas-display" class="vidas-futuristas">
+                    </div>
+                <div class="score-display">
+                    <span id="puntos-display">0</span> <span class="pts-label">PTS</span>
+                </div>
             </div>
-            
-            
-            <div class="stat-card stat-puntos">
-                <div class="stat-label">PUNTOS</div>
-                <div id="puntos-display" class="stat-value">0</div>
-            </div>
-            
-            
-            <div class="stat-card stat-racha">
+
+            <div class="stat-bubble stat-racha">
                 <div class="stat-label">RACHA</div>
                 <div id="racha-display" class="stat-value">0</div>
             </div>
+        </div>
+        
+        <div class="main-game-area">
+            <div id="fase-badge" class="fase-badge" style="display:none;"></div>
+
+            <div id="matrices-container"></div>
+
+            <div id="fase-parcial-panel" class="fase-parcial-panel" style="display:none;"></div>
             
-            
-            <div class="stat-card stat-record">
-                <div class="stat-label">RÉCORD</div>
-                <div id="record-display" class="stat-value">0</div>
+            <div class="response-zone-futuristic">
+                <div class="drop-zone-container">
+                    <h3><i class="fas fa-download"></i> Matriz de Respuesta</h3>
+                    <p class="instruccion-drag">Arrastra los números al panel inferior</p>
+                    <div id="respuesta-matrix-target" class="matrix-target-grid">
+                        </div>
+                </div>
+
+                <div class="numbers-supply-container">
+                    <h3><i class="fas fa-hashtag"></i> Fuente de Energía</h3>
+                    <div id="numbers-supply-bin" class="numbers-bin">
+                        </div>
+                </div>
             </div>
         </div>
         
-        
-        <div id="matrices-container"></div>
-        
-        
-        <div class="respuesta-container">
-            <label for="respuesta-usuario" class="respuesta-label">
-                Tu respuesta:
-            </label>
-            <input 
-                type="text" 
-                id="respuesta-usuario"
-                class="respuesta-input"
-                placeholder="Ejemplo: [[1,2],[3,4]] o un número" 
-                autocomplete="off"
-            >
-        </div>
-        
-        
-        <div class="botones-accion">
-            <button id="btn-verificar" class="btn-principal">
-                 Verificar Respuesta
+        <div class="botones-accion-footer">
+            <button id="btn-verificar" class="btn-principal-futuristic">
+                <i class="fas fa-check-circle"></i> Verificar Secuencia
             </button>
-            <button id="btn-volver" class="btn-secundario">
-                ← Volver al Inicio
+            <button id="btn-volver" class="btn-secundario-futuristic">
+                <i class="fas fa-arrow-left"></i> Abortar Misión
             </button>
         </div>
         
-       
         <div id="mensaje-resultado"></div>
     </div>
 
+    <div class="info-float" tabindex="0">
+        <button class="info-bubble" type="button" aria-label="Información del proyecto">
+            <i class="fas fa-info"></i>
+        </button>
+        <div class="info-card">
+            <p>Desarrollado en la Universidad Politécnica de Querétaro por Regina Lopez Soto y Diego Francisco Cruz Cruz</p>
+        </div>
+    </div>
+
     <div id="modal-gameover" class="modal" style="display: none;">
-        <div class="modal-content">
-            <h2 class="modal-titulo">GAME OVER </h2>
-            <p class="modal-mensaje">¡Te quedaste sin vidas!</p>
+        <div class="modal-content-futuristic">
+            <div class="glitch-wrapper">
+                <h2 class="modal-titulo-glitch" data-text="SISTEMA CRÍTICO">SISTEMA CRÍTICO</h2>
+            </div>
+            <div class="icon-danger-modal"><i class="fas fa-exclamation-triangle"></i></div>
+            <p class="modal-mensaje">Integridad del núcleo: 0%. Ciclo finalizado.</p>
             
-            <div class="modal-estadisticas">
-                <div class="modal-stat">
-                    <span class="modal-stat-label">Puntos finales:</span>
-                    <span id="modal-puntos-finales" class="modal-stat-value">0</span>
+            <div class="modal-estadisticas-futuristic">
+                <div class="modal-stat-futu">
+                    <span class="modal-stat-label-futu">Puntuación Final</span>
+                    <span id="modal-puntos-finales" class="modal-stat-value-futu">0</span>
                 </div>
-                <div class="modal-stat">
-                    <span class="modal-stat-label">Aciertos:</span>
-                    <span id="modal-aciertos" class="modal-stat-value">0/0</span>
+                <div class="modal-stat-futu">
+                    <span class="modal-stat-label-futu">Eficiencia (Aciertos)</span>
+                    <span id="modal-aciertos" class="modal-stat-value-futu">0/0</span>
                 </div>
-                <div class="modal-stat">
-                    <span class="modal-stat-label">Mejor racha:</span>
-                    <span id="modal-mejor-racha" class="modal-stat-value">0</span>
+                <div class="modal-stat-futu">
+                    <span class="modal-stat-label-futu">Pico de Racha</span>
+                    <span id="modal-mejor-racha" class="modal-stat-value-futu">0</span>
                 </div>
             </div>
             
-            <div class="modal-botones">
-                <button id="btn-reintentar" class="btn-modal btn-reintentar">
-                    Reintentar
+            <div class="modal-botones-futu">
+                <button id="btn-reintentar" class="btn-modal-futu btn-reintentar-futu">
+                    <i class="fas fa-sync-alt"></i> Reiniciar Ciclo
                 </button>
-                <button id="btn-menu" class="btn-modal btn-menu">
-                    Menú Principal
+                <button id="btn-menu" class="btn-modal-futu btn-menu-futu">
+                    <i class="fas fa-home"></i> Menú de Red
                 </button>
             </div>
         </div>
     </div>
 
-
-   
     <script src="script.js"></script>
 </body>
 </html>
