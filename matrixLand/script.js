@@ -1072,4 +1072,11 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log(`Puntuación final guardada: ${puntos} en nivel ${nivel}`);
     }
 
+    // Registrar Service Worker
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('./service-worker.js')
+            .then(() => console.log('SW registrado'))
+            .catch(err => console.warn('SW error:', err));
+    }
+
 });
