@@ -9,13 +9,13 @@
   "orientation": "portrait-primary",
   "icons": [
     {
-      "src": "logo/LogoMatrixLand.jpg",
+      "src": "LogoMatrixLand.jpg",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "logo/LogoMatrixLand.jpg",
+      "src": "LogoMatrixLand.jpg",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
