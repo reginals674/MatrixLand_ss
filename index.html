@@ -66,28 +66,28 @@
                 <div class="nivel-icon"><i class="fas fa-plus-minus"></i></div>
                 <h3>Nivel Básico</h3>
                 <p class="nivel-descripcion">
-                    Secuencia: <strong>Suma y Resta</strong><br>
-                    Dimensión 2x2 | Rango [1-5]
+                    Suma, resta y multiplica matrices por un número (escalar). El punto de partida perfecto.
+                    <span class="nivel-specs">Matrices 2×2 · Números del 1 al 5</span>
                 </p>
                 <button id="btn-basico" class="btn-nivel">INICIAR</button>
             </div>
-            
+
             <div class="nivel-card nivel-intermedio" id="card-intermedio">
                 <div class="nivel-icon"><i class="fas fa-times"></i></div>
                 <h3>Nivel Intermedio</h3>
                 <p class="nivel-descripcion">
-                    Secuencia: <strong>Multiplicación</strong><br>
-                    Dimensión 2x2 & 3x3 | Rango [1-8]
+                    Multiplica matrices fila por columna, combinando distintos tamaños entre sí.
+                    <span class="nivel-specs">Matrices 2×2 y 3×3 · Números del 1 al 8</span>
                 </p>
                 <button id="btn-intermedio" class="btn-nivel">INICIAR</button>
             </div>
-            
+
             <div class="nivel-card nivel-avanzado" id="card-avanzado">
                 <div class="nivel-icon"><i class="fas fa-project-diagram"></i></div>
                 <h3>Nivel Avanzado</h3>
                 <p class="nivel-descripcion">
-                    Secuencia: <strong>Transpuesta y Det.</strong><br>
-                    Dimensión 2x2 & 3x3 | Rango [1-10]
+                    Calcula la transpuesta y el determinante, incluida la Regla de Sarrus en 3×3.
+                    <span class="nivel-specs">Matrices 2×2 y 3×3 · Números del 1 al 10</span>
                 </p>
                 <button id="btn-avanzado" class="btn-nivel">INICIAR</button>
             </div>
@@ -96,23 +96,47 @@
                 <div class="nivel-icon"><i class="fas fa-layer-group"></i></div>
                 <h3>Retos Extra</h3>
                 <p class="nivel-descripcion">
-                    Secuencia: <strong>Operaciones Combinadas</strong><br>
-                    2 Fases por desafío | Dimensión 2x2 & 3x3
+                    Resuelve retos en 2 pasos que combinan varias operaciones a la vez, como k(A+B) o |A+B|.
+                    <span class="nivel-specs">2 fases por desafío · Matrices 2×2 y 3×3</span>
                 </p>
                 <button id="btn-extra" class="btn-nivel">INICIAR</button>
             </div>
         </div>
 
+        <div class="recursos-container">
+            <h3><i class="fas fa-toolbox"></i> Centro de Recursos</h3>
+            <div class="recursos-lista">
+                <button id="btn-tutorial-operaciones" class="recurso-item" type="button">
+                    <span class="recurso-icono recurso-icono-tutorial"><i class="fas fa-graduation-cap"></i></span>
+                    <span class="recurso-texto">
+                        <strong>Tutoriales de Operaciones</strong>
+                        <small>Aprende paso a paso cómo se resuelve cada operación</small>
+                    </span>
+                    <i class="fas fa-chevron-right recurso-flecha"></i>
+                </button>
+                <button id="btn-ayuda-juego" class="recurso-item" type="button">
+                    <span class="recurso-icono recurso-icono-ayuda"><i class="fas fa-question"></i></span>
+                    <span class="recurso-texto">
+                        <strong>Cómo Jugar</strong>
+                        <small>Vidas, racha, puntos y los pasos del juego</small>
+                    </span>
+                    <i class="fas fa-chevron-right recurso-flecha"></i>
+                </button>
+            </div>
+        </div>
+
         <div class="estadisticas-globales-container">
             <h3><i class="fas fa-chart-line"></i> Terminal de Estado Global</h3>
-            <div class="stats-grid-inicio">
-                <div class="stat-item-inicio">
-                    <span class="stat-icon-inicio"><i class="fas fa-trophy"></i></span>
-                    <div class="stat-info-inicio">
-                        <span id="global-record" class="stat-numero-inicio">0</span>
-                        <span class="stat-texto-inicio">Récord Máximo</span>
-                    </div>
+
+            <div class="record-hero">
+                <div class="record-hero-icon"><i class="fas fa-trophy"></i></div>
+                <div class="record-hero-info">
+                    <span id="global-record" class="record-hero-valor">0</span>
+                    <span class="record-hero-label">Récord Máximo</span>
                 </div>
+            </div>
+
+            <div class="stats-grid-inicio stats-grid-secundaria">
                 <div class="stat-item-inicio">
                     <span class="stat-icon-inicio"><i class="fas fa-gamepad"></i></span>
                     <div class="stat-info-inicio">
@@ -120,12 +144,36 @@
                         <span class="stat-texto-inicio">Ciclos Jugados</span>
                     </div>
                 </div>
+                <div class="stat-item-inicio">
+                    <span class="stat-icon-inicio"><i class="fas fa-bullseye"></i></span>
+                    <div class="stat-info-inicio">
+                        <span id="global-precision" class="stat-numero-inicio">0%</span>
+                        <span class="stat-texto-inicio">Precisión</span>
+                    </div>
+                </div>
+                <div class="stat-item-inicio">
+                    <span class="stat-icon-inicio"><i class="fas fa-fire"></i></span>
+                    <div class="stat-info-inicio">
+                        <span id="global-mejor-racha" class="stat-numero-inicio">0</span>
+                        <span class="stat-texto-inicio">Mejor Racha</span>
+                    </div>
+                </div>
             </div>
-             <button id="btn-borrar-datos" class="btn-danger-futuristic">
+
+            <button id="btn-borrar-datos" class="btn-danger-futuristic">
                 <i class="fas fa-trash-alt"></i> Resetear Núcleo de Datos
             </button>
         </div>
-    
+
+        <div class="info-float" tabindex="0">
+            <button class="info-bubble" type="button" aria-label="Información del proyecto">
+                <i class="fas fa-info"></i>
+            </button>
+            <div class="info-card">
+                <p>Desarrollado en la Universidad Politécnica de Querétaro por Regina Lopez Soto y Diego Francisco Cruz Cruz</p>
+            </div>
+        </div>
+
     </div>
 
     <div id="pantalla-juego" style="display: none;">
@@ -134,6 +182,7 @@
             <div class="stat-bubble stat-nivel">
                 <div class="stat-label">PROTOCOLO</div>
                 <div id="texto-nivel" class="stat-value">Básico</div>
+                <div id="dificultad-indicator" class="dificultad-indicator" style="display:none;"></div>
             </div>
 
             <div class="control-center">
@@ -147,6 +196,7 @@
             <div class="stat-bubble stat-racha">
                 <div class="stat-label">RACHA</div>
                 <div id="racha-display" class="stat-value">0</div>
+                <div id="racha-bonus" class="stat-bonus">+0%</div>
             </div>
         </div>
         
@@ -160,7 +210,7 @@
             <div class="response-zone-futuristic">
                 <div class="drop-zone-container">
                     <h3><i class="fas fa-download"></i> Matriz de Respuesta</h3>
-                    <p class="instruccion-drag">Arrastra los números al panel inferior</p>
+                    <p class="instruccion-drag">Arrastra un número, o tócalo y luego toca la casilla destino</p>
                     <div id="respuesta-matrix-target" class="matrix-target-grid">
                         </div>
                 </div>
@@ -185,13 +235,125 @@
         <div id="mensaje-resultado"></div>
     </div>
 
-    <div class="info-float" tabindex="0">
-        <button class="info-bubble" type="button" aria-label="Información del proyecto">
-            <i class="fas fa-info"></i>
-        </button>
-        <div class="info-card">
-            <p>Desarrollado en la Universidad Politécnica de Querétaro por Regina Lopez Soto y Diego Francisco Cruz Cruz</p>
+    <div id="pantalla-tutorial" style="display:none;">
+        <div class="corner corner-tl"></div>
+        <div class="corner corner-tr"></div>
+        <div class="corner corner-bl"></div>
+        <div class="corner corner-br"></div>
+
+        <div class="protocolo-header">
+            <button class="btn-secundario-futuristic btn-volver-protocolo" id="volver-tutorial" type="button">
+                <i class="fas fa-arrow-left"></i> Volver al Inicio
+            </button>
+            <h2 class="protocolo-titulo"><i class="fas fa-graduation-cap"></i> Tutoriales de Operaciones</h2>
+            <p class="protocolo-subtitulo">Aprende paso a paso cómo se resuelve cada operación con matrices</p>
         </div>
+
+            <div class="tutorial-tabs" id="tutorial-tabs">
+                <button class="tutorial-tab active" data-tab="suma" type="button">Suma</button>
+                
+                <button class="tutorial-tab" data-tab="resta" type="button">Resta</button>
+                <button class="tutorial-tab" data-tab="escalar" type="button">Escalar</button>
+                <button class="tutorial-tab" data-tab="mult" type="button">Multiplicación</button>
+                <button class="tutorial-tab" data-tab="trans" type="button">Transpuesta</button>
+                <button class="tutorial-tab" data-tab="det" type="button">Determinante</button>
+            </div>
+
+            <div class="tutorial-panels">
+                <div class="tutorial-panel active" data-panel="suma">
+                    <p>Para <strong>sumar matrices</strong> se suman los elementos que están en la <strong>misma posición</strong> (misma fila y columna). Ambas matrices deben tener el mismo tamaño.</p>
+                    <div class="tutorial-player" data-op="suma"></div>
+                </div>
+
+                <div class="tutorial-panel" data-panel="resta">
+                    <p>La <strong>resta de matrices</strong> funciona igual que la suma, pero restando el elemento de B al elemento de A en la misma posición.</p>
+                    <div class="tutorial-player" data-op="resta"></div>
+                </div>
+
+                <div class="tutorial-panel" data-panel="escalar">
+                    <p>La <strong>multiplicación por escalar</strong> significa multiplicar <em>cada elemento</em> de la matriz por el mismo número k.</p>
+                    <div class="tutorial-player" data-op="escalar"></div>
+                </div>
+
+                <div class="tutorial-panel" data-panel="mult">
+                    <p>Para <strong>multiplicar matrices</strong>, cada elemento del resultado se obtiene multiplicando una <strong>fila completa de A</strong> por una <strong>columna completa de B</strong>, elemento a elemento, y sumando esos productos. El número de columnas de A debe ser igual al número de filas de B.</p>
+                    <div class="tutorial-player" data-op="mult"></div>
+                </div>
+
+                <div class="tutorial-panel" data-panel="trans">
+                    <p>La <strong>transpuesta</strong> convierte las filas en columnas (y las columnas en filas). El elemento en la posición (i,j) pasa a la posición (j,i).</p>
+                    <div class="tutorial-player" data-op="trans"></div>
+                </div>
+
+                <div class="tutorial-panel" data-panel="det">
+                    <p>El <strong>determinante</strong> es un número asociado a una matriz cuadrada. A diferencia de una matriz normal, <strong>no se escribe entre corchetes</strong>, sino entre <strong>barras verticales</strong>: <code>|A|</code>.</p>
+
+                    <div class="tutorial-size-toggle" role="tablist">
+                        <button class="tutorial-size-btn active" data-detsize="2x2" type="button">Determinante 2×2</button>
+                        <button class="tutorial-size-btn" data-detsize="3x3" type="button">Determinante 3×3 (Regla de Sarrus)</button>
+                    </div>
+
+                    <div class="tutorial-player" data-op="det"></div>
+                    <div class="tutorial-player" data-op="det3"></div>
+                </div>
+            </div>
+    </div>
+
+    <div id="pantalla-ayuda" style="display:none;">
+        <div class="corner corner-tl"></div>
+        <div class="corner corner-tr"></div>
+        <div class="corner corner-bl"></div>
+        <div class="corner corner-br"></div>
+
+        <div class="protocolo-header">
+            <button class="btn-secundario-futuristic btn-volver-protocolo" id="volver-ayuda" type="button">
+                <i class="fas fa-arrow-left"></i> Volver al Inicio
+            </button>
+            <h2 class="protocolo-titulo"><i class="fas fa-question-circle"></i> ¿Cómo Jugar?</h2>
+        </div>
+
+            <div class="ayuda-grid">
+                <div class="ayuda-item ayuda-item-vidas">
+                    <div class="ayuda-icono vidas-icono"><i class="fas fa-heart"></i></div>
+                    <div class="ayuda-contenido">
+                        <h4>Vidas</h4>
+                        <p>Empiezas con <strong>3 vidas</strong>. Cada respuesta incorrecta te quita una. Si llegas a 0, la partida termina.</p>
+                        <p class="ayuda-tip"><i class="fas fa-bolt"></i> Consigue una racha de <strong>5 aciertos seguidos</strong> y recuperas 1 vida (hasta el máximo de 3).</p>
+                    </div>
+                </div>
+                <div class="ayuda-item ayuda-item-racha">
+                    <div class="ayuda-icono racha-icono"><i class="fas fa-fire"></i></div>
+                    <div class="ayuda-contenido">
+                        <h4>Racha</h4>
+                        <p>Cada acierto consecutivo aumenta tu racha. Una respuesta incorrecta la reinicia a 0.</p>
+                        <p class="ayuda-tip"><i class="fas fa-bolt"></i> Cada punto de racha añade <strong>+10% de puntos extra</strong> al siguiente acierto.</p>
+                    </div>
+                </div>
+                <div class="ayuda-item ayuda-item-puntos">
+                    <div class="ayuda-icono puntos-icono"><i class="fas fa-star"></i></div>
+                    <div class="ayuda-contenido">
+                        <h4>Puntos</h4>
+                        <p>Cada nivel otorga puntos base al resolver bien un desafío:</p>
+                        <ul class="ayuda-lista-puntos">
+                            <li><span>Básico</span><strong>10 pts</strong></li>
+                            <li><span>Intermedio</span><strong>20 pts</strong></li>
+                            <li><span>Avanzado</span><strong>30 pts</strong></li>
+                            <li><span>Retos Extra</span><strong>40 pts</strong></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="ayuda-pasos">
+                <h4><i class="fas fa-list-ol"></i> Pasos para jugar</h4>
+                <ol>
+                    <li>Elige un nivel según tu experiencia.</li>
+                    <li>Observa la operación planteada entre las matrices (o el escalar).</li>
+                    <li>Arrastra los números correctos desde la "Fuente de Energía" hacia la matriz de respuesta.</li>
+                    <li>Pulsa "Verificar Secuencia" para comprobar tu resultado.</li>
+                    <li>Usa el botón <i class="fas fa-graduation-cap"></i> de Tutoriales si necesitas repasar cómo se resuelve cada operación.</li>
+                </ol>
+            </div>
     </div>
 
     <div id="modal-gameover" class="modal" style="display: none;">
@@ -216,7 +378,9 @@
                     <span id="modal-mejor-racha" class="modal-stat-value-futu">0</span>
                 </div>
             </div>
-            
+
+            <div id="modal-recomendacion" class="modal-recomendacion" style="display:none;"></div>
+
             <div class="modal-botones-futu">
                 <button id="btn-reintentar" class="btn-modal-futu btn-reintentar-futu">
                     <i class="fas fa-sync-alt"></i> Reiniciar Ciclo
@@ -225,6 +389,9 @@
                     <i class="fas fa-home"></i> Menú de Red
                 </button>
             </div>
+            <button id="btn-compartir" class="btn-modal-futu btn-compartir-futu btn-compartir-ancho" type="button">
+                <i class="fas fa-share-alt"></i> Compartir Resultado
+            </button>
         </div>
     </div>
 

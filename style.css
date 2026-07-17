@@ -52,6 +52,20 @@
     -webkit-tap-highlight-color: transparent;
 }
 
+/* NUEVO: scroll de toda la página rediseñado con el tema neón */
+html {
+    scrollbar-width: thin;
+    scrollbar-color: var(--primary-neon) var(--bg-dark);
+}
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: var(--bg-dark); }
+::-webkit-scrollbar-thumb {
+    background: linear-gradient(var(--secondary-neon), var(--primary-neon));
+    border-radius: 10px;
+    border: 2px solid var(--bg-dark);
+}
+::-webkit-scrollbar-thumb:hover { background: var(--primary-neon); }
+
 body {
     font-family: 'Montserrat', sans-serif;
     background-color: var(--bg-dark);
@@ -98,13 +112,15 @@ h1, h2, h3, .stat-value, .matrix-cell, .draggable-number {
    ======================================== */
 
 /* Aplicamos el estilo de panel a todos los contenedores principales */
-#pantalla-inicio, 
-.nivel-card, 
-.estadisticas-globales-container, 
-#pantalla-juego, 
-#matrices-container, 
-.drop-zone-container, 
-.numbers-supply-container, 
+#pantalla-inicio,
+.nivel-card,
+.estadisticas-globales-container,
+#pantalla-juego,
+#pantalla-tutorial,
+#pantalla-ayuda,
+#matrices-container,
+.drop-zone-container,
+.numbers-supply-container,
 .modal-content-futuristic {
     background: var(--bg-panel);
     border-radius: 30px;
@@ -153,7 +169,7 @@ h1, h2, h3, .stat-value, .matrix-cell, .draggable-number {
    ======================================== */
 
 #pantalla-inicio {
-    padding: 50px 40px;
+    padding: 50px 40px 100px; /* NUEVO: aire extra abajo para que el botón de info flotante no encime el último contenido */
     text-align: center;
     max-width: 900px;
     width: 100%;
@@ -161,11 +177,29 @@ h1, h2, h3, .stat-value, .matrix-cell, .draggable-number {
 }
 
 .header-logo {
+    position: relative;
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
     justify-content: center;
     gap: 15px;
-    margin-bottom: 10px;
+    margin-bottom: 22px;
+    padding-bottom: 14px;
+}
+
+/* NUEVO: línea decorativa con brillo animado bajo el título, refuerza el look "data-stream" */
+.header-logo::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 140px;
+    height: 2px;
+    border-radius: 2px;
+    background: linear-gradient(90deg, transparent, var(--primary-neon), var(--secondary-neon), transparent);
+    background-size: 200% auto;
+    animation: shimmerText 3s linear infinite;
 }
 
 #pantalla-inicio h1 {
@@ -195,7 +229,7 @@ h1, h2, h3, .stat-value, .matrix-cell, .draggable-number {
 }
 
 .nivel-card {
-    background: rgba(255, 255, 255, 0.02);
+    background: linear-gradient(155deg, rgba(255, 255, 255, 0.035), rgba(255, 255, 255, 0.01));
     border-radius: 25px;
     padding: 30px;
     display: flex;
@@ -243,6 +277,7 @@ h1, h2, h3, .stat-value, .matrix-cell, .draggable-number {
     margin-bottom: 15px;
     color: var(--text-muted);
     transition: var(--transition-soft);
+    animation: pulseGlow 3.5s ease-in-out infinite; /* NUEVO: brillo suave en reposo, más "vivo" */
 }
 
 .nivel-card:hover .nivel-icon {
@@ -254,6 +289,16 @@ h1, h2, h3, .stat-value, .matrix-cell, .draggable-number {
     font-size: 20px;
     margin-bottom: 10px;
     color: white;
+}
+
+/* NUEVO: línea de especificaciones técnicas (tamaño de matriz, rango) bajo la descripción */
+.nivel-specs {
+    display: block;
+    margin-top: 10px;
+    font-size: 11px;
+    color: var(--text-muted);
+    opacity: 0.75;
+    letter-spacing: 0.3px;
 }
 
 .nivel-descripcion {
@@ -281,6 +326,83 @@ h1, h2, h3, .stat-value, .matrix-cell, .draggable-number {
     box-shadow: var(--neon-glow);
 }
 
+/* NUEVO: Centro de Recursos (reemplaza los botones flotantes de tutoriales/ayuda/info) */
+.recursos-container {
+    background: rgba(0, 0, 0, 0.2);
+    padding: 30px;
+    border-radius: 20px;
+    margin-bottom: 30px;
+}
+
+.recursos-container h3 {
+    font-size: 16px;
+    color: var(--primary-neon);
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.recursos-lista {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.recurso-item {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    width: 100%;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 18px;
+    padding: 22px 26px;
+    text-align: left;
+    cursor: pointer;
+    transition: var(--transition-soft);
+}
+
+.recurso-item:hover, .recurso-item:focus-visible {
+    background: rgba(255, 255, 255, 0.045);
+    border-color: rgba(0, 242, 254, 0.25);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+}
+
+.recurso-icono {
+    width: 60px;
+    height: 60px;
+    flex-shrink: 0;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    font-size: 24px;
+    background: rgba(255, 255, 255, 0.04);
+}
+.recurso-icono-tutorial { color: var(--primary-neon); box-shadow: 0 0 14px rgba(0, 242, 254, 0.3); }
+.recurso-icono-ayuda    { color: var(--warning-neon); box-shadow: 0 0 14px rgba(245, 158, 11, 0.3); }
+
+.recurso-texto {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+.recurso-texto strong { color: white; font-size: 19px; letter-spacing: 0.2px; }
+.recurso-texto small { color: #c2c2cc; font-size: 14px; line-height: 1.4; }
+
+.recurso-flecha {
+    flex-shrink: 0;
+    color: var(--text-muted);
+    font-size: 18px;
+    transition: var(--transition-soft);
+}
+.recurso-item:hover .recurso-flecha { color: var(--primary-neon); transform: translateX(4px); }
+
+/* NUEVO: botón de info flotante — vive dentro de #pantalla-inicio, así que solo aparece ahí */
 .info-float {
     position: fixed;
     right: 24px;
@@ -305,9 +427,7 @@ h1, h2, h3, .stat-value, .matrix-cell, .draggable-number {
     cursor: pointer;
     transition: transform 0.25s ease, box-shadow 0.25s ease;
 }
-
-.info-bubble:hover,
-.info-bubble:focus-visible {
+.info-bubble:hover, .info-bubble:focus-visible {
     transform: translateY(-2px) scale(1.04);
     box-shadow: 0 0 18px rgba(0, 242, 254, 0.25);
 }
@@ -327,9 +447,7 @@ h1, h2, h3, .stat-value, .matrix-cell, .draggable-number {
     pointer-events: none;
     transition: opacity 0.25s ease, transform 0.25s ease;
 }
-
-.info-float:hover .info-card,
-.info-float:focus-within .info-card {
+.info-float:hover .info-card, .info-float:focus-within .info-card {
     opacity: 1;
     transform: translateY(0);
     pointer-events: auto;
@@ -382,12 +500,78 @@ h1, h2, h3, .stat-value, .matrix-cell, .draggable-number {
     gap: 10px;
 }
 
+/* NUEVO: tarjeta protagonista del Récord Máximo */
+.record-hero {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.14), rgba(245, 158, 11, 0.03));
+    border: 1px solid rgba(245, 158, 11, 0.3);
+    border-radius: 20px;
+    padding: 22px 30px;
+    margin-bottom: 20px;
+    box-shadow: 0 0 25px rgba(245, 158, 11, 0.08);
+}
+
+.record-hero-icon {
+    width: 60px;
+    height: 60px;
+    flex-shrink: 0;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    font-size: 26px;
+    color: var(--warning-neon);
+    background: rgba(245, 158, 11, 0.1);
+    box-shadow: 0 0 20px rgba(245, 158, 11, 0.3);
+    animation: pulseGlow 2.5s infinite;
+}
+
+.record-hero-info {
+    display: flex;
+    flex-direction: column;
+    text-align: left;
+}
+
+.record-hero-valor {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 42px;
+    font-weight: 900;
+    line-height: 1;
+    color: var(--warning-neon);
+    text-shadow: 0 0 15px rgba(245, 158, 11, 0.5);
+}
+
+.record-hero-label {
+    font-size: 12px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin-top: 6px;
+}
+
 .stats-grid-inicio {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 20px;
     margin-bottom: 20px;
 }
+
+/* NUEVO: fila secundaria más compacta (Ciclos, Precisión, Mejor Racha) */
+.stats-grid-secundaria {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+}
+.stats-grid-secundaria .stat-item-inicio {
+    flex-direction: column;
+    text-align: center;
+    padding: 14px 8px;
+    gap: 8px;
+}
+.stats-grid-secundaria .stat-info-inicio { align-items: center; }
+.stats-grid-secundaria .stat-icon-inicio { font-size: 17px; }
+.stats-grid-secundaria .stat-numero-inicio { font-size: 17px; }
 
 .stat-item-inicio {
     background: rgba(255, 255, 255, 0.02);
@@ -433,6 +617,7 @@ h1, h2, h3, .stat-value, .matrix-cell, .draggable-number {
     background: var(--danger-neon);
     color: white;
     box-shadow: 0 0 10px var(--danger-neon);
+    transform: translateY(-2px);
 }
 
 /* ========================================
@@ -446,12 +631,96 @@ h1, h2, h3, .stat-value, .matrix-cell, .draggable-number {
     animation: panelEnter 0.5s var(--ease-soft);
 }
 
+/* NUEVO: pantallas completas de Tutoriales y Ayuda (ya no son modales) */
+#pantalla-tutorial,
+#pantalla-ayuda {
+    position: relative;
+    padding: 40px;
+    max-width: 820px;
+    width: 100%;
+    max-height: 88vh;
+    overflow-y: auto;
+    text-align: left;
+    animation: panelEnter 0.5s var(--ease-soft);
+
+    /* NUEVO: scroll rediseñado acorde al tema neón (Firefox) */
+    scrollbar-width: thin;
+    scrollbar-color: var(--primary-neon) rgba(255, 255, 255, 0.05);
+}
+
+/* NUEVO: scroll rediseñado acorde al tema neón (Chrome/Edge/Safari) */
+#pantalla-tutorial::-webkit-scrollbar,
+#pantalla-ayuda::-webkit-scrollbar {
+    width: 9px;
+}
+#pantalla-tutorial::-webkit-scrollbar-track,
+#pantalla-ayuda::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 10px;
+    margin: 6px 0;
+}
+#pantalla-tutorial::-webkit-scrollbar-thumb,
+#pantalla-ayuda::-webkit-scrollbar-thumb {
+    background: linear-gradient(var(--secondary-neon), var(--primary-neon));
+    border-radius: 10px;
+    box-shadow: 0 0 6px rgba(0, 242, 254, 0.4);
+}
+#pantalla-tutorial::-webkit-scrollbar-thumb:hover,
+#pantalla-ayuda::-webkit-scrollbar-thumb:hover {
+    background: var(--primary-neon);
+    box-shadow: 0 0 10px rgba(0, 242, 254, 0.6);
+}
+
+.protocolo-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 10px;
+    margin-bottom: 28px;
+}
+
+.btn-volver-protocolo {
+    align-self: flex-start;
+    padding: 10px 20px;
+    font-size: 13px;
+}
+
+.protocolo-titulo {
+    position: relative;
+    color: var(--primary-neon);
+    font-size: 26px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding-bottom: 14px;
+    text-shadow: var(--neon-glow);
+}
+.protocolo-titulo::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 110px;
+    height: 2px;
+    border-radius: 2px;
+    background: linear-gradient(90deg, transparent, var(--primary-neon), var(--secondary-neon), transparent);
+    background-size: 200% auto;
+    animation: shimmerText 3s linear infinite;
+}
+
+.protocolo-subtitulo {
+    color: var(--text-muted);
+    font-size: 13px;
+}
+
 .game-header {
     display: grid;
     grid-template-columns: 1fr auto 1fr;
     align-items: center;
     gap: 20px;
-    margin-bottom: 30px;
+    margin-bottom: 28px;
 }
 
 .stat-bubble {
@@ -476,6 +745,27 @@ h1, h2, h3, .stat-value, .matrix-cell, .draggable-number {
 
 .stat-nivel .stat-value { color: var(--primary-neon); text-shadow: var(--neon-glow); }
 .stat-racha .stat-value { color: var(--success-neon); }
+
+/* NUEVO: indicador de dificultad adaptativa (sube/baja según el desempeño del jugador) */
+.dificultad-indicator {
+    margin-top: 4px;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+}
+.dificultad-alta { color: var(--danger-neon); }
+.dificultad-baja { color: var(--secondary-neon); }
+
+.stat-bonus {
+    margin-top: 4px;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--warning-neon);
+    letter-spacing: 0.5px;
+}
 
 .control-center {
     display: flex;
@@ -529,10 +819,11 @@ h1, h2, h3, .stat-value, .matrix-cell, .draggable-number {
 .main-game-area {
     display: flex;
     flex-direction: column;
-    gap: 22px;
+    gap: 24px;
 }
 
 #matrices-container {
+    position: relative;
     background: var(--bg-panel);
     padding: 34px 30px;
     border-radius: 20px;
@@ -542,6 +833,21 @@ h1, h2, h3, .stat-value, .matrix-cell, .draggable-number {
     align-items: center;
     width: 100%;
     transition: var(--transition-soft);
+}
+
+/* NUEVO: acento superior tipo "escaneo de datos", refuerza el look de terminal activa */
+#matrices-container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 18%;
+    right: 18%;
+    height: 2px;
+    border-radius: 2px;
+    background: linear-gradient(90deg, transparent, var(--primary-neon), var(--secondary-neon), transparent);
+    background-size: 200% auto;
+    animation: shimmerText 2.5s linear infinite;
+    opacity: 0.7;
 }
 
 .desafio-pregunta {
@@ -574,6 +880,53 @@ h1, h2, h3, .stat-value, .matrix-cell, .draggable-number {
     display: flex;
     flex-direction: row;     /* Las celdas de cada fila van de izquierda a derecha */
     gap: 6px;
+}
+
+/* ========================================
+   CORCHETES / BARRAS DE VALOR ABSOLUTO
+   Refuerzan visualmente que se trata de una matriz [ ]
+   o, en el caso del determinante, de |A| (barras)
+   ======================================== */
+.matrix-visual-grid,
+.matrix-target-grid.is-matrix-target {
+    position: relative;
+    padding: 8px 22px !important;
+}
+
+.matrix-visual-grid::before, .matrix-visual-grid::after,
+.matrix-target-grid.is-matrix-target::before, .matrix-target-grid.is-matrix-target::after {
+    content: '';
+    position: absolute;
+    top: -2px;
+    bottom: -2px;
+    width: 12px;
+    border: 3px solid var(--primary-neon);
+    opacity: 0.9;
+}
+
+.matrix-visual-grid::before, .matrix-target-grid.is-matrix-target::before {
+    left: -4px;
+    border-right: none;
+    border-radius: 6px 0 0 6px;
+}
+
+.matrix-visual-grid::after, .matrix-target-grid.is-matrix-target::after {
+    right: -4px;
+    border-left: none;
+    border-radius: 0 6px 6px 0;
+}
+
+/* Modificador: notación de determinante |A| en lugar de corchetes [A] */
+.matrix-visual-grid.bars-matrix::before, .matrix-visual-grid.bars-matrix::after {
+    width: 3px;
+    border: none;
+    border-radius: 0;
+    background: var(--warning-neon);
+    box-shadow: 0 0 8px var(--warning-neon);
+}
+
+.determinante-bars-wrap {
+    justify-self: center;
 }
 
 .matrix-cell {
@@ -710,6 +1063,24 @@ h1, h2, h3, .stat-value, .matrix-cell, .draggable-number {
     box-shadow: var(--bubble-shadow);
 }
 
+/* NUEVO: explica el error celda a celda — verde = acertaste esa celda, rojo = revísala */
+.drop-zone.celda-correcta {
+    border-style: solid;
+    border-color: var(--success-neon) !important;
+    box-shadow: 0 0 10px rgba(0, 255, 153, 0.35) !important;
+}
+.drop-zone.celda-incorrecta {
+    border-style: solid;
+    border-color: var(--danger-neon) !important;
+    box-shadow: 0 0 10px rgba(255, 46, 99, 0.35) !important;
+    animation: celdaIncorrectaShake 0.4s ease;
+}
+@keyframes celdaIncorrectaShake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-3px); }
+    75% { transform: translateX(3px); }
+}
+
 .numbers-bin {
     display: flex;
     flex-wrap: wrap;
@@ -758,6 +1129,35 @@ h1, h2, h3, .stat-value, .matrix-cell, .draggable-number {
     opacity: 0.5;
     transform: scale(0.9);
     box-shadow: none;
+}
+
+/* NUEVO: número elegido por toque/clic, esperando una celda destino */
+.draggable-number.numero-seleccionado {
+    border-color: var(--primary-neon) !important;
+    box-shadow: 0 0 0 3px rgba(0, 242, 254, 0.35), 0 0 16px rgba(0, 242, 254, 0.6) !important;
+    animation: numeroSeleccionadoPulse 1s ease-in-out infinite;
+}
+@keyframes numeroSeleccionadoPulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.08); }
+}
+
+/* NUEVO: celdas libres que aceptarían el número seleccionado ahora mismo */
+.drop-zone.zona-lista {
+    border-color: var(--primary-neon);
+    background: rgba(0, 242, 254, 0.06);
+    animation: zonaListaPulse 1.2s ease-in-out infinite;
+}
+@keyframes zonaListaPulse {
+    0%, 100% { box-shadow: 0 0 0 rgba(0, 242, 254, 0); }
+    50% { box-shadow: 0 0 10px rgba(0, 242, 254, 0.35); }
+}
+
+/* NUEVO: foco visible por teclado (accesibilidad) */
+.draggable-number:focus-visible,
+.drop-zone:focus-visible {
+    outline: 2px solid var(--primary-neon);
+    outline-offset: 2px;
 }
 
 .drop-zone .draggable-number {
@@ -872,7 +1272,7 @@ h1, h2, h3, .stat-value, .matrix-cell, .draggable-number {
     display: flex;
     gap: 20px;
     justify-content: center;
-    margin-top: 40px;
+    margin-top: 32px;
 }
 
 .btn-principal-futuristic {
@@ -898,6 +1298,7 @@ h1, h2, h3, .stat-value, .matrix-cell, .draggable-number {
     background: rgba(255, 255, 255, 0.07);
     color: white;
     box-shadow: var(--bubble-shadow);
+    transform: translateY(-2px);
 }
 
 /* ========================================
@@ -905,7 +1306,7 @@ h1, h2, h3, .stat-value, .matrix-cell, .draggable-number {
    ======================================== */
 
 #mensaje-resultado {
-    margin-top: 30px;
+    margin-top: 24px;
     min-height: 80px;
     animation: slideInUp 0.4s var(--ease-soft);
 }
@@ -929,6 +1330,14 @@ h1, h2, h3, .stat-value, .matrix-cell, .draggable-number {
 .feedback-text {
     font-size: 14px;
     color: var(--text-main);
+}
+
+.texto-incorrecto { color: var(--danger-neon); font-weight: 700; }
+
+.feedback-respuesta-completa {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-top: 2px;
 }
 
 .correct-panel {
@@ -1014,7 +1423,7 @@ h1, h2, h3, .stat-value, .matrix-cell, .draggable-number {
     background: rgba(0, 0, 0, 0.3);
     padding: 20px;
     border-radius: 20px;
-    margin-bottom: 40px;
+    margin-bottom: 24px;
 }
 
 .modal-stat-futu {
@@ -1024,6 +1433,46 @@ h1, h2, h3, .stat-value, .matrix-cell, .draggable-number {
     padding: 15px 0;
     border-bottom: 1px solid rgba(255, 255, 255, 0.03);
 }
+
+/* NUEVO: recomendación de práctica basada en el punto más débil del jugador */
+.modal-recomendacion {
+    align-items: center;
+    gap: 14px;
+    background: rgba(245, 158, 11, 0.06);
+    border: 1px solid rgba(245, 158, 11, 0.25);
+    border-radius: 16px;
+    padding: 14px 18px;
+    margin-bottom: 24px;
+    text-align: left;
+}
+.modal-recomendacion i.fa-lightbulb {
+    font-size: 22px;
+    color: var(--warning-neon);
+    flex-shrink: 0;
+}
+.recomendacion-texto {
+    flex-grow: 1;
+    font-size: 12.5px;
+    color: var(--text-main);
+    line-height: 1.5;
+}
+.recomendacion-texto strong { color: var(--warning-neon); }
+.btn-practicar {
+    flex-shrink: 0;
+    border: none;
+    background: var(--warning-neon);
+    color: var(--bg-dark);
+    font-weight: 700;
+    font-size: 12px;
+    padding: 10px 16px;
+    border-radius: 50px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: var(--transition-soft);
+}
+.btn-practicar:hover { box-shadow: 0 0 12px rgba(245, 158, 11, 0.5); transform: translateY(-1px); }
 /* ========================================
    SPLASH SCREEN
    ======================================== */
@@ -1159,16 +1608,392 @@ h1, h2, h3, .stat-value, .matrix-cell, .draggable-number {
 .btn-modal-futu { flex: 1; padding: 15px; font-size: 16px; }
 
 .btn-reintentar-futu { background: var(--success-neon); color: var(--bg-dark); }
-.btn-reintentar-futu:hover { box-shadow: 0 0 15px var(--success-neon); }
+.btn-reintentar-futu:hover { box-shadow: 0 0 15px var(--success-neon); transform: translateY(-2px); }
 
 .btn-menu-futu { background: rgba(255, 255, 255, 0.03); color: white; border: 1px solid rgba(255, 255, 255, 0.05); }
-.btn-menu-futu:hover { background: rgba(255, 255, 255, 0.07); box-shadow: var(--bubble-shadow); }
+.btn-menu-futu:hover { background: rgba(255, 255, 255, 0.07); box-shadow: var(--bubble-shadow); transform: translateY(-2px); }
+
+/* NUEVO: botón para compartir la tarjeta de resultado */
+.btn-compartir-ancho { width: 100%; margin-top: 14px; }
+.btn-compartir-futu {
+    background: linear-gradient(135deg, var(--secondary-neon) 0%, var(--primary-neon) 100%);
+    color: var(--bg-dark);
+    box-shadow: 0 4px 15px rgba(0, 242, 254, 0.25);
+}
+.btn-compartir-futu:hover {
+    box-shadow: 0 6px 20px rgba(0, 242, 254, 0.45), 0 0 10px var(--primary-neon);
+    transform: translateY(-2px);
+}
+
+/* ========================================
+   TUTORIALES DE OPERACIONES (pantalla completa)
+   ======================================== */
+
+.tutorial-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 26px;
+}
+
+.tutorial-tab {
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.02);
+    color: var(--text-muted);
+    padding: 8px 16px;
+    border-radius: 50px;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: var(--transition-soft);
+}
+
+.tutorial-tab:hover { color: white; border-color: rgba(0, 242, 254, 0.3); transform: translateY(-1px); }
+
+.tutorial-tab.active {
+    background: var(--primary-neon);
+    border-color: var(--primary-neon);
+    color: var(--bg-dark);
+    box-shadow: var(--neon-glow);
+}
+
+.tutorial-panel { display: none; animation: slideInUp 0.35s var(--ease-soft); }
+.tutorial-panel.active { display: block; }
+
+.tutorial-panel p {
+    color: var(--text-main);
+    font-size: 14px;
+    line-height: 1.6;
+    margin-bottom: 18px;
+}
+
+.tutorial-player { margin-bottom: 8px; }
+
+.tutorial-stage {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 14px;
+    padding: 24px;
+    background: rgba(0, 0, 0, 0.25);
+    border-radius: 18px 18px 0 0;
+    min-height: 120px;
+}
+
+.tutorial-matrix .matrix-cell { width: 42px; height: 42px; font-size: 15px; }
+.tutorial-scalar { width: 50px; height: 50px; font-size: 18px; }
+.tutorial-scalar-result {
+    width: 50px;
+    height: 50px;
+    font-size: 20px;
+    border-radius: 50%;
+    background: rgba(245, 158, 11, 0.1);
+    border-color: var(--warning-neon);
+}
+
+/* Celda / elemento resaltado en el paso actual del tutorial animado */
+.tut-active {
+    animation: tutPulse 1.1s ease-in-out infinite;
+    position: relative;
+    z-index: 1;
+}
+@keyframes tutPulse {
+    0%, 100% { box-shadow: 0 0 0 2px var(--primary-neon), 0 0 12px rgba(0, 242, 254, 0.35); transform: scale(1); }
+    50% { box-shadow: 0 0 0 2px var(--primary-neon), 0 0 20px rgba(0, 242, 254, 0.6); transform: scale(1.08); }
+}
+.scalar-bubble.tut-active {
+    animation-name: tutPulseEscalar;
+}
+@keyframes tutPulseEscalar {
+    0%, 100% { box-shadow: 0 0 15px rgba(245, 158, 11, 0.35); transform: scale(1); }
+    50% { box-shadow: 0 0 25px rgba(245, 158, 11, 0.65); transform: scale(1.08); }
+}
+
+/* Caption explicativa del paso actual */
+.tutorial-caption {
+    background: rgba(0, 242, 254, 0.04);
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    padding: 14px 20px;
+    text-align: center;
+    min-height: 56px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+}
+.tutorial-caption p {
+    margin: 0 !important;
+    color: white !important;
+    font-size: 14px !important;
+    font-weight: 600;
+    font-family: 'Orbitron', sans-serif;
+}
+.tutorial-step-badge {
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    color: var(--primary-neon);
+    text-transform: uppercase;
+    font-weight: 700;
+}
+
+/* Controles de reproducción: anterior / play-pausa / siguiente + barra de progreso */
+.tutorial-controls {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 20px;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 0 0 18px 18px;
+    margin-bottom: 16px;
+}
+
+.tutorial-ctrl-btn {
+    width: 36px;
+    height: 36px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.03);
+    color: var(--text-main);
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+    flex-shrink: 0;
+    font-size: 12px;
+    transition: var(--transition-soft);
+}
+.tutorial-ctrl-btn:hover { border-color: var(--primary-neon); color: var(--primary-neon); transform: translateY(-2px); }
+
+.tutorial-play-btn {
+    width: 42px;
+    height: 42px;
+    background: var(--primary-neon);
+    color: var(--bg-dark);
+    border-color: var(--primary-neon);
+    font-size: 14px;
+}
+.tutorial-play-btn:hover { box-shadow: var(--neon-glow); color: var(--bg-dark); transform: translateY(-2px) scale(1.05); }
+
+.tutorial-progress {
+    flex-grow: 1;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.06);
+    border-radius: 4px;
+    overflow: hidden;
+}
+.tutorial-progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--secondary-neon), var(--primary-neon));
+    border-radius: 4px;
+    transition: width 0.3s var(--ease-soft);
+}
+
+.tutorial-formula {
+    text-align: center;
+    color: var(--text-muted) !important;
+    font-size: 13px !important;
+    margin-bottom: 0 !important;
+}
+.tutorial-formula code {
+    background: rgba(0, 242, 254, 0.08);
+    color: var(--primary-neon);
+    padding: 3px 8px;
+    border-radius: 6px;
+    font-family: 'Orbitron', sans-serif;
+}
+
+.tutorial-nota {
+    margin-top: 12px;
+    font-size: 12px !important;
+    color: var(--text-muted) !important;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Colores de posición emparejada (mismos elementos entre A, B y el resultado) */
+.tut-c1 { box-shadow: inset 0 0 0 2px var(--primary-neon); }
+.tut-c2 { box-shadow: inset 0 0 0 2px var(--warning-neon); }
+.tut-c3 { box-shadow: inset 0 0 0 2px var(--success-neon); }
+.tut-c4 { box-shadow: inset 0 0 0 2px #d946ef; }
+.tut-result { background: rgba(255, 255, 255, 0.08); }
+
+.tut-row-highlight { background: rgba(0, 242, 254, 0.1); border-radius: 10px; }
+.tut-col-highlight { box-shadow: inset 0 0 0 2px var(--primary-neon); background: rgba(0, 242, 254, 0.08); }
+
+.tut-diag-pos { box-shadow: inset 0 0 0 2px var(--success-neon); }
+.tut-diag-neg { box-shadow: inset 0 0 0 2px var(--danger-neon); }
+
+/* ========================================
+   DETERMINANTE 3×3 · REGLA DE SARRUS
+   ======================================== */
+.tutorial-size-toggle {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 18px;
+}
+
+.tutorial-size-btn {
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.02);
+    color: var(--text-muted);
+    padding: 8px 16px;
+    border-radius: 50px;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: var(--transition-soft);
+}
+.tutorial-size-btn:hover { color: white; border-color: rgba(245, 158, 11, 0.4); transform: translateY(-1px); }
+.tutorial-size-btn.active {
+    background: var(--warning-neon);
+    border-color: var(--warning-neon);
+    color: var(--bg-dark);
+    box-shadow: 0 0 12px rgba(245, 158, 11, 0.4);
+}
+
+.tutorial-player[data-op="det3"] { display: none; }
+
+.tutorial-sarrus-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
+.tutorial-sarrus .matrix-cell { width: 34px; height: 34px; font-size: 13px; }
+.tutorial-sarrus .matrix-row-visual { gap: 4px; }
+.tutorial-sarrus .matrix-row-visual .matrix-cell:nth-child(3) { margin-right: 8px; }
+
+.tut-col-repetida {
+    border-style: dashed !important;
+    opacity: 0.6;
+}
+
+.tutorial-mini-nota {
+    font-size: 11px !important;
+    color: var(--text-muted) !important;
+    text-align: center;
+    max-width: 320px;
+    margin: 0 !important;
+}
+
+/* ========================================
+   MODAL: AYUDA / CÓMO JUGAR
+   ======================================== */
+.ayuda-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    margin-bottom: 28px;
+}
+
+.ayuda-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 18px;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.04);
+    border-left: 3px solid transparent;
+    border-radius: 16px;
+    padding: 18px 20px;
+    text-align: left;
+    transition: var(--transition-soft);
+}
+.ayuda-item:hover {
+    background: rgba(255, 255, 255, 0.035);
+    border-color: rgba(255, 255, 255, 0.1);
+    transform: translateX(2px);
+}
+.ayuda-item-vidas  { border-left-color: var(--danger-neon); }
+.ayuda-item-racha  { border-left-color: var(--warning-neon); }
+.ayuda-item-puntos { border-left-color: var(--primary-neon); }
+
+.ayuda-icono {
+    width: 46px;
+    height: 46px;
+    flex-shrink: 0;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    font-size: 18px;
+    background: rgba(255, 255, 255, 0.04);
+}
+.vidas-icono { color: var(--danger-neon); box-shadow: 0 0 12px rgba(255, 46, 99, 0.2); }
+.racha-icono { color: var(--warning-neon); box-shadow: 0 0 12px rgba(245, 158, 11, 0.2); }
+.puntos-icono { color: var(--primary-neon); box-shadow: 0 0 12px rgba(0, 242, 254, 0.2); }
+
+.ayuda-contenido { min-width: 0; flex-grow: 1; }
+.ayuda-item h4 { color: white; font-size: 15px; margin-bottom: 6px; }
+.ayuda-item p { color: var(--text-muted); font-size: 13px; line-height: 1.55; margin-bottom: 8px; }
+.ayuda-item p:last-child { margin-bottom: 0; }
+
+.ayuda-tip {
+    color: var(--warning-neon) !important;
+    font-size: 12px !important;
+    background: rgba(245, 158, 11, 0.08);
+    border-radius: 10px;
+    padding: 9px 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    text-align: left;
+    line-height: 1.4 !important;
+}
+.ayuda-tip i { flex-shrink: 0; }
+
+.ayuda-lista-puntos { list-style: none; text-align: left; margin-top: 4px; }
+.ayuda-lista-puntos li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 13px;
+    color: var(--text-muted);
+    padding: 7px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+.ayuda-lista-puntos li:last-child { border-bottom: none; }
+.ayuda-lista-puntos li strong {
+    color: var(--primary-neon);
+    background: rgba(0, 242, 254, 0.08);
+    padding: 3px 10px;
+    border-radius: 50px;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 12px;
+}
+
+.ayuda-pasos {
+    background: rgba(0, 0, 0, 0.25);
+    border-radius: 18px;
+    padding: 22px;
+}
+.ayuda-pasos h4 {
+    color: var(--primary-neon);
+    font-size: 14px;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.ayuda-pasos ol { padding-left: 20px; }
+.ayuda-pasos li { color: var(--text-main); font-size: 13px; line-height: 1.8; }
 
 /* ========================================
    ANIMACIONES KEYFRAMES
    ======================================== */
 
 @keyframes panelEnter { from { opacity: 0; transform: translateY(30px) scale(0.95); } to { opacity: 1; transform: translateY(0) scale(1); } }
+@keyframes panelSalir { from { opacity: 1; transform: translateY(0) scale(1); } to { opacity: 0; transform: translateY(-14px) scale(0.97); } }
+
+/* NUEVO: transición de salida al cambiar entre pantalla de inicio y de juego (ID+clase para ganarle
+   en especificidad a la animación de entrada definida en #pantalla-inicio / #pantalla-juego) */
+#pantalla-inicio.pantalla-saliendo,
+#pantalla-juego.pantalla-saliendo {
+    animation: panelSalir 0.22s ease forwards;
+}
 @keyframes cellEnter { to { opacity: 1; transform: scale(1); } }
 @keyframes modalPopIn { from { opacity: 0; transform: scale(0.8) translateY(-50px); } to { opacity: 1; transform: scale(1) translateY(0); } }
 @keyframes pulseGlow { 0%, 100% { opacity: 1; text-shadow: var(--neon-glow); } 50% { opacity: 0.5; text-shadow: none; } }
@@ -1203,7 +2028,18 @@ h1, h2, h3, .stat-value, .matrix-cell, .draggable-number {
 @media (max-width: 600px) {
     body { padding: 10px; }
     #pantalla-inicio, #pantalla-juego { padding: 20px; border-radius: 20px; }
+    #pantalla-inicio { padding-bottom: 90px; padding-left: 16px; padding-right: 16px; }
+    #pantalla-inicio h1 { font-size: 24px; letter-spacing: 1px; }
+    .header-logo { gap: 8px; }
+    .logo-icon { font-size: 22px; }
+    .subtitulo { font-size: 13px; padding: 0 6px; }
     .game-header { grid-template-columns: 1fr; gap: 10px; }
+    .record-hero { flex-direction: column; padding: 20px; gap: 12px; }
+    .record-hero-info { text-align: center; }
+    .record-hero-valor { font-size: 34px; }
+    .stats-grid-secundaria { grid-template-columns: 1fr; }
+    .stats-grid-secundaria .stat-item-inicio { flex-direction: row; text-align: left; }
+    .stats-grid-secundaria .stat-info-inicio { align-items: flex-start; }
     .stat-bubble { padding: 10px; }
     .score-display { font-size: 28px; }
     .matrix-cell, .drop-zone { width: 40px; height: 40px; font-size: 14px; }
@@ -1211,8 +2047,33 @@ h1, h2, h3, .stat-value, .matrix-cell, .draggable-number {
     .modal-content-futuristic { padding: 30px 20px; }
     .modal-titulo-glitch { font-size: 28px; }
     .modal-botones-futu { flex-direction: column; gap: 10px; }
+    .modal-recomendacion { flex-direction: column; text-align: center; }
+    .recomendacion-texto { text-align: center; }
     .scalar-bubble { width: 48px; height: 48px; font-size: 18px; }
     .fase-badge { font-size: 10px; padding: 8px 16px; text-align: center; }
     .fase-parcial-panel { padding: 14px 16px; gap: 12px; }
     .fase-parcial-panel .matrix-cell { width: 30px; height: 30px; font-size: 12px; }
+    .recursos-container { padding: 20px; }
+    .recurso-item { padding: 16px; gap: 14px; }
+    .recurso-icono { width: 48px; height: 48px; font-size: 19px; }
+    .recurso-texto strong { font-size: 16px; }
+    .recurso-texto small { font-size: 13px; }
+    .info-float { right: 14px; bottom: 14px; }
+    .info-bubble { width: 44px; height: 44px; font-size: 15px; }
+    #pantalla-tutorial, #pantalla-ayuda { padding: 24px 18px; max-height: 92vh; }
+    .protocolo-titulo { font-size: 20px; text-align: center; }
+    .ayuda-item { flex-direction: column; align-items: flex-start; gap: 10px; }
+    .tutorial-matrix .matrix-cell { width: 34px; height: 34px; font-size: 13px; }
+    .tutorial-controls { padding: 12px 14px; gap: 8px; }
+    .tutorial-caption p { font-size: 12.5px !important; }
+    .tutorial-sarrus .matrix-cell { width: 28px; height: 28px; font-size: 11px; }
+    .matrix-display-wrapper { flex-wrap: wrap; row-gap: 18px; }
+    .matrix-visual-grid, .matrix-target-grid.is-matrix-target { padding: 8px 16px !important; }
+}
+
+@media (max-width: 380px) {
+    .tutorial-sarrus .matrix-cell { width: 24px; height: 24px; font-size: 10px; }
+    .tutorial-sarrus .matrix-row-visual { gap: 3px; }
+    .info-card { width: min(280px, calc(100vw - 24px)); }
+    #pantalla-inicio h1 { font-size: 20px; }
 }
